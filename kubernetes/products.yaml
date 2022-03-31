@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: products-deploy
+    ingress-ready: "true"
+  name: products-deploy
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: products-deploy
+  template:
+    metadata:
+      labels:
+        app: products-deploy
+    spec:
+      containers:
+        - image: localhost:5001/products
+          name: products
+          ports:
+            - containerPort: 80
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: product-service
+  labels:
+    app: product-service
+spec:
+  selector:
+    app: products-deploy
+  ports:
+    - port: 80
+      name: http
+      targetPort: 80
+    - port: 443
+      name: https
+      targetPort: 80
