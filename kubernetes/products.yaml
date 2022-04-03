@@ -3,10 +3,9 @@ kind: Deployment
 metadata:
   labels:
     app: products-deploy
-    ingress-ready: "true"
   name: products-deploy
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: products-deploy
@@ -20,6 +19,14 @@ spec:
           name: products
           ports:
             - containerPort: 80
+            - containerPort: 443
+          readinessProbe: &healthPoint
+            httpGet:
+              scheme: HTTP
+              port: 80
+              path: /actuator/health
+          livenessProbe: *healthPoint
+          startupProbe: *healthPoint
 ---
 
 kind: Service
@@ -37,4 +44,4 @@ spec:
       targetPort: 80
     - port: 443
       name: https
-      targetPort: 80
+      targetPort: 443
