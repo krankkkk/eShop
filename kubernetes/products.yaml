@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: products-deploy
+  name: products-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: products-deploy
+  template:
+    metadata:
+      labels:
+        app: products-deploy
+    spec:
+      containers:
+        - image: localhost:5001/products
+          name: products
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+          readinessProbe: &healthPoint
+            httpGet:
+              scheme: HTTP
+              port: 80
+              path: /actuator/health
+          livenessProbe: *healthPoint
+          startupProbe: *healthPoint
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: product-service
+  labels:
+    app: product-service
+spec:
+  selector:
+    app: products-deploy
+  ports:
+    - port: 80
+      name: http
+      targetPort: 80
+    - port: 443
+      name: https
+      targetPort: 443
