@@ -21,22 +21,47 @@ public class ProductDatabaseDummy implements Dao<Product>{
                 .findFirst();
     }
 
+    /**
+     * Methode zum ausgeben aller Produkte in der Persistance.
+     * @return eine Liste mit allen Produkten.
+     */
     @Override
     public List<Product> getAll() {
         return productList;
     }
 
+    /**
+     * Methode zum Hinzufügen eines Produktes
+     * @param product Das Produkt, welches Hinzugefügt werden soll.
+     * @return Falls erfolgreich, gibt das Produkt welches Hinzugefügt wurde zurück. Falls nicht erfolgreich
+     * gibt die Methode Null zurück
+     */
     @Override
-    public void save(Product product) {
+    public Product save(Product product) {
+        Optional<Product> productInListFound = productList.stream()
+                .filter(product1 -> product1.getId() == product.getId())
+                .findAny();
+        if(productInListFound.isPresent()) return null;
+
         productList.add(product);
+        return product;
     }
 
+    /**
+     * Methode zum Updaten eines Produktes in der Persistance
+     * @param product das Produkt, welches Updated werden soll
+     * @return gibt das Produkt zurück, falls erfolgreich, und Null falls nicht erfolgreich
+     */
     @Override
-    public void update(long id, Product product) {
+    public Product update(Product product) {
         // finde den Index des Objektes das updated werde soll in der Liste
         for (int i = 0; i < productList.size(); i++) {
-            if (productList.get(i).getId() == id) productList.set(i, product);
+            if (productList.get(i).getId() == product.getId()) {
+                productList.set(i, product);
+                return product;
+            }
         }
+        return null;
     }
 
     @Override
