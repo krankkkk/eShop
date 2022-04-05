@@ -9,9 +9,9 @@ public interface Dao<T> {
 
     List<T> getAll();
 
-    void save(T t);
+    T save(T t);
 
-    void update(long productID, Product product);
+    T update(Product product);
 
     void delete(long id);
 }
