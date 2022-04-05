@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// Controller sitzt auf Port 80
 @RestController
 public class ProductController {
 
@@ -20,9 +21,10 @@ public class ProductController {
         return databaseDummy.getAll();
     }
 
-    @PostMapping("/products")
-    public void newProduct(@RequestBody Product newProduct) {
-        databaseDummy.save(newProduct);
+    // return value, um evtl. ein nicht erfolgreichen adden sichtbar wird.
+    @PostMapping(value = "/products", consumes = "application/json", produces = "application/json")
+    public Product newProduct(@RequestBody Product newProduct) {
+        return databaseDummy.save(newProduct);
     }
 
     @GetMapping("/products/{id}")
@@ -30,9 +32,9 @@ public class ProductController {
         return databaseDummy.get(id).orElse(null);
     }
 
-    @PutMapping("/products/{id}")
-    public void replaceProduct (@RequestBody Product product, @PathVariable long id) {
-        databaseDummy.update(id, product);
+    @PutMapping(value ="/products", consumes = "application/json", produces = "application/json")
+    public Product replaceProduct (@RequestBody Product product) {
+        return databaseDummy.update(product);
     }
 
     @DeleteMapping("products/{id}")
