@@ -1,13 +1,19 @@
 package de.baleipzig.products.persistance;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.util.Objects;
 
+@Entity
 public class Product {
 
+    private @Id long id;
     private ProductType productType;
-    private long id;
     private String name;
     private String eigenschaft;
+
+    public Product() {
+    }
 
     public Product(ProductType productType, long id, String name, String eigenschaft) {
         this.productType = productType;
@@ -15,7 +21,6 @@ public class Product {
         this.name = name;
         this.eigenschaft = eigenschaft;
     }
-
 
     @Override
     public boolean equals(Object o) {
