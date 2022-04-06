@@ -1,45 +1,59 @@
 package de.baleipzig.products;
 
 import de.baleipzig.products.persistance.Product;
-import de.baleipzig.products.persistance.ProductDatabaseDummy;
+import de.baleipzig.products.persistance.ProductNotFoundException;
+import de.baleipzig.products.persistance.ProductRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// Controller sitzt auf Port 80
+
 @RestController
 public class ProductController {
 
-    private final ProductDatabaseDummy databaseDummy;
+    private final ProductRepository repository;
 
-    public ProductController() {
-        this.databaseDummy = new ProductDatabaseDummy();
+    public ProductController(ProductRepository repository) {
+        this.repository = repository;
     }
 
     @GetMapping("/products")
     public List<Product> all(){
-        return databaseDummy.getAll();
+        return repository.findAll();
     }
 
     // return value, um evtl. ein nicht erfolgreichen adden sichtbar wird.
     @PostMapping(value = "/products", consumes = "application/json", produces = "application/json")
     public Product newProduct(@RequestBody Product newProduct) {
-        return databaseDummy.save(newProduct);
+        return repository.save(newProduct);
     }
 
     @GetMapping("/products/{id}")
     public Product one(@PathVariable long id){
-        return databaseDummy.get(id).orElse(null);
+        return repository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
-    @PutMapping(value ="/products", consumes = "application/json", produces = "application/json")
-    public Product replaceProduct (@RequestBody Product product) {
-        return databaseDummy.update(product);
+    @PutMapping(value = "/products/{id}", consumes = "application/json", produces = "application/json")
+    public Product replaceProduct(@RequestBody Product newProduct, @PathVariable Long id) {
+
+        return repository.findById(id)
+                .map(product -> {
+                    product.setName(newProduct.getName());
+                    product.setProductType(newProduct.getProductType());
+                    product.setEigenschaft(newProduct.getEigenschaft());
+                    return repository.save(product);
+                })
+                .orElseGet(() -> {
+                    newProduct.setId(id);
+                    return repository.save(newProduct);
+                });
     }
 
-    @DeleteMapping("products/{id}")
-    public void deleteProduct (@PathVariable long id) {
-        databaseDummy.delete(id);
+
+    @DeleteMapping("/products/{id}")
+    public void deleteProduct(@PathVariable Long id) {
+        repository.deleteById(id);
     }
 
 }
