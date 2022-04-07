@@ -1,13 +1,16 @@
 package de.baleipzig.products.persistance;
 
+import de.baleipzig.products.ProductDTO;
+
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.util.Objects;
 
 @Entity
 public class Product {
 
-    private @Id long id;
+    private @Id @GeneratedValue long id;
     private ProductType productType;
     private String name;
     private String eigenschaft;
@@ -22,11 +25,17 @@ public class Product {
         this.eigenschaft = eigenschaft;
     }
 
+    public Product(ProductDTO productDTO) {
+        this.productType = productDTO.getProductType();
+        this.id = productDTO.getId();
+        this.name = productDTO.getName();
+        this.eigenschaft = productDTO.getEigenschaft();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Product)) return false;
-        Product product = (Product) o;
+        if (!(o instanceof Product product)) return false;
         return id == product.id && productType == product.productType && Objects.equals(name, product.name) && Objects.equals(eigenschaft, product.eigenschaft);
     }
 
