@@ -5,7 +5,9 @@ import de.baleipzig.products.persistance.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-// diese Klasse rendert die HTTP 404 Fehlermeldung falls eine ProductNotFoundException auftritt
+/**
+ * diese Klasse rendert die HTTP 404 Fehlermeldung falls eine ProductNotFoundException auftritt
+  */
 @ControllerAdvice
 public class ProductNotFoundAdvice {
 

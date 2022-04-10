@@ -2,16 +2,14 @@ package de.baleipzig.products.persistance;
 
 import de.baleipzig.products.ProductDTO;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
 public class Product {
 
     private @Id @GeneratedValue long id;
-    private ProductType productType;
+    private @Enumerated(EnumType.STRING) ProductType productType;
     private String name;
     private String eigenschaft;
 
@@ -26,10 +24,10 @@ public class Product {
     }
 
     public Product(ProductDTO productDTO) {
-        this.productType = productDTO.getProductType();
-        this.id = productDTO.getId();
-        this.name = productDTO.getName();
-        this.eigenschaft = productDTO.getEigenschaft();
+        this.productType = productDTO.productType();
+        this.id = productDTO.id();
+        this.name = productDTO.name();
+        this.eigenschaft = productDTO.property();
     }
 
     @Override

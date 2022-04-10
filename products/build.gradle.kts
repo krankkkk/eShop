@@ -21,11 +21,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     // https://mvnrepository.com/artifact/org.springframework.data/spring-data-jpa
-    implementation("org.springframework.data:spring-data-jpa:2.6.3")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
     // https://mvnrepository.com/artifact/com.h2database/h2
-    implementation("com.h2database:h2:2.1.210")
+    runtimeOnly("com.h2database:h2:2.1.210")
 
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
