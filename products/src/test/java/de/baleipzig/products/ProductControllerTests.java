@@ -11,19 +11,16 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ProductControllerTests {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String personServiceUrl = "http://localhost:80/products";
+    private static final String productServiceUrl = "http://localhost:80/products";
 
     private static JSONObject productJsonObject;
     private static RestTemplate restTemplate;
@@ -51,16 +48,17 @@ public class ProductControllerTests {
     }
 
     @Test
-    void restGetProductsList () throws URISyntaxException, JsonProcessingException {
-        URI uri = new URI(personServiceUrl);
+    void testGetProductsList() throws URISyntaxException, JsonProcessingException {
+        URI uri = new URI(productServiceUrl);
 
-        ResponseEntity<String> result = restTemplate.getForEntity(uri,String.class);
+        ResponseEntity<List<ProductDTO>> response= restTemplate
+                .exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<ProductDTO>>() {});
 
-        List<Product> myProducts = objectMapper.readValue(result.getBody(), new TypeReference<>() {});
+        List<ProductDTO> products = response.getBody();
 
         // verify request succeed
-        assertEquals(200, result.getStatusCodeValue());
-        assertTrue(myProducts.size() > 0 );
+        assertEquals(200, response.getStatusCodeValue());
+        assertTrue(products.size() > 0 );
     }
 
 
@@ -68,7 +66,7 @@ public class ProductControllerTests {
     void testPostMapping() {
         HttpEntity<String> request = new HttpEntity<>(productJsonObject.toString(), headers);
 
-        ResponseEntity<String> result = restTemplate.postForEntity(personServiceUrl, request, String.class);
+        ResponseEntity<String> result = restTemplate.postForEntity(productServiceUrl, request, String.class);
 
         assertEquals(200, result.getStatusCodeValue());
         assertNotNull(result.getBody());
@@ -79,19 +77,18 @@ public class ProductControllerTests {
 
         Product firstProduct = getFirstProduct();
 
-        assert firstProduct != null;
-        URI uri = new URI(personServiceUrl + "/" + firstProduct.getId());
-        ResponseEntity<String> result = restTemplate.getForEntity(uri,String.class);
+        URI uri = new URI(productServiceUrl + "/" + firstProduct.getId());
+        ResponseEntity<ProductDTO> response= restTemplate
+                .exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<ProductDTO>() {});
 
-        //Product productResult = restTemplate.getForObject(personServiceUrl + "/353122", Product.class);
-        //Product productExpected = objectMapper.readValue(productJsonObject.toString(), Product.class);
+        ProductDTO product = response.getBody();
 
-        assertEquals(200, result.getStatusCodeValue());
-        assertTrue(Objects.requireNonNull(result.getBody()).contains("\"id\":" + firstProduct.getId()));
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(Objects.requireNonNull(product.id()), firstProduct.getId());
     }
 
     private Product getFirstProduct() throws URISyntaxException, JsonProcessingException {
-        URI uri = new URI(personServiceUrl);
+        URI uri = new URI(productServiceUrl);
         ResponseEntity<String> result = restTemplate.getForEntity(uri,String.class);
         List<Product> myProducts = objectMapper.readValue(result.getBody(), new TypeReference<>() {});
         return myProducts.stream().findFirst().orElse(null);
@@ -102,10 +99,10 @@ public class ProductControllerTests {
 
         Product firstProduct  = getFirstProduct();
 
-        restTemplate.delete(personServiceUrl + "/" + firstProduct.getId());
+        restTemplate.delete(productServiceUrl + "/" + firstProduct.getId());
 
         assertThrows(HttpClientErrorException.NotFound.class,
-                () -> restTemplate.getForEntity(personServiceUrl + "/" + firstProduct.getId(), Product.class));
+                () -> restTemplate.getForEntity(productServiceUrl + "/" + firstProduct.getId(), Product.class));
     }
 
     @Test
@@ -121,16 +118,15 @@ public class ProductControllerTests {
 
         // Datenbankeintrag Updaten
         HttpEntity<String> newRequest = new HttpEntity<>(newProductJsonObject.toString(), headers);
-        restTemplate.put(personServiceUrl + "/" + firstProduct.getId(), newRequest);
+        restTemplate.put(productServiceUrl + "/" + firstProduct.getId(), newRequest);
 
         // ergebnis überprüfen
-        URI uri = new URI(personServiceUrl + "/" + firstProduct.getId());
+        URI uri = new URI(productServiceUrl + "/" + firstProduct.getId());
         ResponseEntity<String> result = restTemplate.getForEntity(uri,String.class);
         Product product = restTemplate.getForObject(uri, Product.class);
 
         assertEquals(200, result.getStatusCodeValue());
-        assert product != null;
-        assertEquals("Headset", product.getName());
+        assertEquals("Headset", Objects.requireNonNull(product.getName()));
         assertEquals(ProductType.ELECTRONICS, product.getProductType());
         assertEquals("Bluetoth", product.getEigenschaft());
     }
