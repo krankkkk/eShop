@@ -20,4 +20,5 @@ public class LoadDatabase {
             log.info("Preloading {} ", repository.save(new Product(ProductType.HOUSEHOLD, 0, "Besen", "1,5m ")));
         };
     }
+
 }
