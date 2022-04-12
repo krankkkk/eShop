@@ -1,54 +1,70 @@
 package de.baleipzig.products.persistance;
 
 import de.baleipzig.products.ProductDTO;
+import org.springframework.data.jpa.domain.AbstractPersistable;
 
 import javax.persistence.*;
+import java.util.Locale;
 import java.util.Objects;
 
+@Table(name = "products")
 @Entity
-public class Product {
+public class Product extends AbstractPersistable<Long> {
 
-    private @Id @GeneratedValue long id;
-    private @Enumerated(EnumType.STRING) ProductType productType;
+    @Column(name = "Type", nullable = false)
+    private ProductType productType;
+
+    @Column(name = "name", nullable = false)
     private String name;
-    private String eigenschaft;
+
+    private String property;
 
     public Product() {
     }
 
-    public Product(ProductType productType, long id, String name, String eigenschaft) {
-        this.productType = productType;
-        this.id = id;
+    public Product(String productType, String name, String property) {
+        this.productType = resolveProductType(productType);
         this.name = name;
-        this.eigenschaft = eigenschaft;
+        this.property = property;
     }
 
     public Product(ProductDTO productDTO) {
-        this.productType = productDTO.productType();
-        this.id = productDTO.id();
+        this.productType = resolveProductType(productDTO.productType());
         this.name = productDTO.name();
-        this.eigenschaft = productDTO.property();
+        this.property = productDTO.property();
+    }
+
+    private ProductType resolveProductType (String stringType) {
+        ProductType resolvedType;
+        String type = stringType.toUpperCase(Locale.ROOT);
+        switch (type) {
+            case "HOUSEHOLD" -> resolvedType = ProductType.HOUSEHOLD;
+            case "TEXTILES" -> resolvedType = ProductType.TEXTILES;
+            case "FOOD" -> resolvedType = ProductType.FOOD;
+            case "ELECTRONICS" -> resolvedType = ProductType.ELECTRONICS;
+            default -> resolvedType = null;
+        }
+        return resolvedType;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Product product)) return false;
-        return id == product.id && productType == product.productType && Objects.equals(name, product.name) && Objects.equals(eigenschaft, product.eigenschaft);
+        return productType.equals(product.productType) && Objects.equals(name, product.name) && Objects.equals(property, product.property);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(productType, id, name, eigenschaft);
+        return Objects.hash(productType, name, property);
     }
 
     @Override
     public String toString() {
         return "Product{" +
                 "productType=" + productType +
-                ", id=" + id +
                 ", name='" + name + '\'' +
-                ", eigenschaft='" + eigenschaft + '\'' +
+                ", eigenschaft='" + property + '\'' +
                 '}';
     }
 
@@ -60,14 +76,6 @@ public class Product {
         this.productType = productType;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
@@ -76,11 +84,11 @@ public class Product {
         this.name = name;
     }
 
-    public String getEigenschaft() {
-        return eigenschaft;
+    public String getProperty() {
+        return property;
     }
 
-    public void setEigenschaft(String eigenschaft) {
-        this.eigenschaft = eigenschaft;
+    public void setProperty(String eigenschaft) {
+        this.property = eigenschaft;
     }
 }
