@@ -1,12 +1,7 @@
 package de.baleipzig.products;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.baleipzig.products.persistance.Product;
 import de.baleipzig.products.persistance.ProductType;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +15,6 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,106 +22,115 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class ProductControllerTests {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String productServiceUrl = "http://localhost:80/products";
-
-    private static JSONObject productJsonObject;
     private static RestTemplate restTemplate;
-    private static HttpHeaders headers;
 
     @BeforeAll
-    public static void runBeforeAllTestMethods() throws JSONException {
+    public static void runBeforeAllTestMethods() {
         restTemplate = new RestTemplate();
-        headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        productJsonObject = new JSONObject();
-        productJsonObject.put("id", null);
-        productJsonObject.put("productType", ProductType.ELECTRONICS);
-        productJsonObject.put("name", "Headset");
-        productJsonObject.put("eigenschaft", "Kabellos");
+
     }
 
     @Test
-    void testGetProductsList() throws URISyntaxException, JsonProcessingException {
+    void testGetProductsList() throws URISyntaxException {
         URI uri = new URI(productServiceUrl);
+        ResponseEntity<List<Long>> response= restTemplate
+                .exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
 
-        ResponseEntity<List<ProductDTO>> response= restTemplate
-                .exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<List<ProductDTO>>() {});
-
-        List<ProductDTO> products = response.getBody();
+        List<Long> productIDs = response.getBody();
 
         // verify request succeed
+        assertNotNull(productIDs);
         assertEquals(200, response.getStatusCodeValue());
-        assertTrue(products.size() > 0 );
+        assertTrue(productIDs.size() > 0 );
     }
 
 
     @Test
     void testPostMapping() {
-        HttpEntity<String> request = new HttpEntity<>(productJsonObject.toString(), headers);
+        ProductDTO productDTO = new ProductDTO(ProductType.HOUSEHOLD.name(), "Headset", "5mKabel");
+        HttpEntity<ProductDTO> request = new HttpEntity<>(productDTO);
 
-        ResponseEntity<String> result = restTemplate.postForEntity(productServiceUrl, request, String.class);
-
-        assertEquals(200, result.getStatusCodeValue());
-        assertNotNull(result.getBody());
-    }
-
-    @Test
-    void testGetMapping () throws JsonProcessingException, URISyntaxException {
-
-        Product firstProduct = getFirstProduct();
-
-        URI uri = new URI(productServiceUrl + "/" + firstProduct.getId());
-        ResponseEntity<ProductDTO> response= restTemplate
-                .exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<ProductDTO>() {});
-
-        ProductDTO product = response.getBody();
+        ResponseEntity<Long> response = restTemplate
+                .exchange(productServiceUrl, HttpMethod.POST, request, Long.class);
 
         assertEquals(200, response.getStatusCodeValue());
-        assertEquals(Objects.requireNonNull(product.id()), firstProduct.getId());
-    }
-
-    private Product getFirstProduct() throws URISyntaxException, JsonProcessingException {
-        URI uri = new URI(productServiceUrl);
-        ResponseEntity<String> result = restTemplate.getForEntity(uri,String.class);
-        List<Product> myProducts = objectMapper.readValue(result.getBody(), new TypeReference<>() {});
-        return myProducts.stream().findFirst().orElse(null);
+        assertNotNull(response.getBody());
     }
 
     @Test
-    void testDeleteMapping() throws URISyntaxException, JsonProcessingException {
+    void testGetMapping () throws URISyntaxException {
+        ProductDTO firstProduct = getFirstProduct();
+        assertNotNull(firstProduct);
+    }
 
-        Product firstProduct  = getFirstProduct();
 
-        restTemplate.delete(productServiceUrl + "/" + firstProduct.getId());
+
+    @Test
+    void testDeleteMapping() throws URISyntaxException {
+        Long firstID = getFirstID();
+        restTemplate.delete(productServiceUrl + "/" + firstID);
 
         assertThrows(HttpClientErrorException.NotFound.class,
-                () -> restTemplate.getForEntity(productServiceUrl + "/" + firstProduct.getId(), Product.class));
+                () -> restTemplate.getForEntity(productServiceUrl + "/" + firstID, Product.class));
     }
 
     @Test
-    void testPutMapping() throws JSONException, JsonProcessingException, URISyntaxException {
-        Product firstProduct = getFirstProduct();
+    void testPutMapping() throws URISyntaxException {
+        // SPEICHERN
+        ProductDTO productDTO = new ProductDTO(ProductType.HOUSEHOLD.name(), "Headset", "5mKabel");
+        HttpEntity<ProductDTO> requestSavedProduct = new HttpEntity<>(productDTO);
+        ResponseEntity<Long> idSavedProduct = restTemplate
+                .exchange(productServiceUrl, HttpMethod.POST, requestSavedProduct, Long.class);
 
-        // aktuallisierten Datenbankeintrag erstellen
-        JSONObject newProductJsonObject = new JSONObject();
-        newProductJsonObject.put("id", null);
-        newProductJsonObject.put("productType", ProductType.ELECTRONICS);
-        newProductJsonObject.put("name", "Headset");
-        newProductJsonObject.put("eigenschaft", "Bluetoth");
+        // ÜBERSCHREIBEN
+        ProductDTO overWriteProduct = new ProductDTO(ProductType.ELECTRONICS.name(), "Headset", "Bluetoth");
+        HttpEntity<ProductDTO> requestOverwriteProduct = new HttpEntity<>(overWriteProduct);
+        restTemplate.put(productServiceUrl + "/" + idSavedProduct.getBody(), requestOverwriteProduct);
 
-        // Datenbankeintrag Updaten
-        HttpEntity<String> newRequest = new HttpEntity<>(newProductJsonObject.toString(), headers);
-        restTemplate.put(productServiceUrl + "/" + firstProduct.getId(), newRequest);
 
-        // ergebnis überprüfen
-        URI uri = new URI(productServiceUrl + "/" + firstProduct.getId());
-        ResponseEntity<String> result = restTemplate.getForEntity(uri,String.class);
-        Product product = restTemplate.getForObject(uri, Product.class);
+        // ÜBERSCHRIEBENEN EINTRAG MIT GET HOLEN
+        URI uri = new URI(productServiceUrl + "/" + idSavedProduct.getBody());
+        ResponseEntity<ProductDTO> overwrittenProduct = restTemplate
+                .exchange(uri, HttpMethod.GET, null, ProductDTO.class);
 
-        assertEquals(200, result.getStatusCodeValue());
-        assertEquals("Headset", Objects.requireNonNull(product.getName()));
-        assertEquals(ProductType.ELECTRONICS, product.getProductType());
-        assertEquals("Bluetoth", product.getEigenschaft());
+        ProductDTO result = overwrittenProduct.getBody();
+
+        assertEquals(200, overwrittenProduct.getStatusCodeValue());
+        assertNotNull(result);
+        assertEquals(overWriteProduct, result);
+    }
+
+    @Test
+    void testProductTypeValidation() {
+        // Datenbankeintrag mit ungültigem Produkttyp erstellen
+        ProductDTO product = new ProductDTO( "ungültig", "maus", "kabel");
+
+        HttpEntity<ProductDTO> requestBody = new HttpEntity<>(product);
+
+        assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(productServiceUrl,
+                HttpMethod.POST,
+                requestBody,
+                Long.class));
+
+    }
+
+    private ProductDTO getFirstProduct() throws URISyntaxException {
+        Long id = getFirstID();
+        ResponseEntity<ProductDTO> response = restTemplate
+                .exchange(new URI(productServiceUrl + "/" + id), HttpMethod.GET, null, ProductDTO.class);
+
+        return response.getBody();
+    }
+
+    private Long getFirstID() throws URISyntaxException {
+        URI uri = new URI(productServiceUrl);
+        ResponseEntity<List<Long>> response = restTemplate
+                .exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
+
+        List<Long> myIds = response.getBody();
+        assertNotNull(myIds);
+        assertTrue(myIds.size() > 0);
+        return myIds.get(0);
     }
 }
