@@ -16,8 +16,8 @@ public class LoadDatabase {
     CommandLineRunner initDatabase(ProductRepository repository) {
 
         return args -> {
-            log.info("Preloading {} ", repository.save(new Product(ProductType.ELECTRONICS, 0, "Maus", "Kabellos")));
-            log.info("Preloading {} ", repository.save(new Product(ProductType.HOUSEHOLD, 0, "Besen", "1,5m ")));
+            log.info("Preloading {} ", repository.save(new Product("ELECTRONICS", "Maus", "Kabellos")));
+            log.info("Preloading {} ", repository.save(new Product("HOUSEHOLD", "Besen", "1,5m ")));
         };
     }
 
