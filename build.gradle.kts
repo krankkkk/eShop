@@ -156,6 +156,11 @@ tasks.register("createCluster") {
     doLast {
         exec {
             executable = ctlPath
+            args("apply", "-f", project.file("kubernetes/postgres.yaml").absolutePath)
+        }
+
+        exec {
+            executable = ctlPath
             args("apply", "-f", project.file("kubernetes/products.yaml").absolutePath)
         }
 
