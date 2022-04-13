@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Example;
 
 
 @Configuration
@@ -16,9 +17,21 @@ public class LoadDatabase {
     CommandLineRunner initDatabase(ProductRepository repository) {
 
         return args -> {
-            log.info("Preloading {} ", repository.save(new Product("ELECTRONICS", "Maus", "Kabellos")));
-            log.info("Preloading {} ", repository.save(new Product("HOUSEHOLD", "Besen", "1,5m ")));
+            final Product mouse = new Product("ELECTRONICS", "Maus", "Kabellos");
+            saveIfNotExists(repository, mouse);
+
+            final Product broom = new Product("HOUSEHOLD", "Besen", "1,5m ");
+            saveIfNotExists(repository, broom);
         };
+    }
+
+    private void saveIfNotExists(ProductRepository repository, Product product) {
+        if (!repository.exists(Example.of(product))) {
+            log.info("Preloading {}.", repository.save(product));
+        }
+        else {
+            log.info("Canceled Preloading {}, already exists.", product);
+        }
     }
 
 }
