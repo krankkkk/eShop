@@ -17,10 +17,10 @@ public class LoadDatabase {
     CommandLineRunner initDatabase(ProductRepository repository) {
 
         return args -> {
-            final Product mouse = new Product("ELECTRONICS", "Maus", "Kabellos");
+            final Product mouse = new Product(ProductType.ELECTRONICS, "Maus", "Kabellos");
             saveIfNotExists(repository, mouse);
 
-            final Product broom = new Product("HOUSEHOLD", "Besen", "1,5m ");
+            final Product broom = new Product(ProductType.HOUSEHOLD, "Besen", "1,5m ");
             saveIfNotExists(repository, broom);
         };
     }
