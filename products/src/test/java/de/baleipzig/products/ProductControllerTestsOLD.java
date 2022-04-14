@@ -1,8 +1,10 @@
 package de.baleipzig.products;
 
 import de.baleipzig.products.persistance.Product;
+import de.baleipzig.products.persistance.ProductRepository;
 import de.baleipzig.products.persistance.ProductType;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,27 +12,77 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+
+import static org.mockito.Mockito.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class ProductControllerTests {
+public class ProductControllerTestsOLD {
 
-    private static final String productServiceUrl = "http://localhost:80/products";
-    private static RestTemplate restTemplate;
+    private ProductController controller;
+    private ProductRepository repository;
+    private final MapperFactory mapperFactory = new MapperFactoryImplementation();
 
-    @BeforeAll
-    public static void runBeforeAllTestMethods() {
-        restTemplate = new RestTemplate();
-
+    @BeforeEach
+    public void setUp() {
+        this.repository = mock(ProductRepository.class);
+        this.controller = new ProductController(this.repository, mapperFactory);
     }
 
+    @Test
+    void testPost () {
+        final ProductDTO dto = new ProductDTO(ProductType.FOOD.name(), "HotDog", "foo");
+        Product product = mapperFactory.mapProduct(dto);
+        final Long expected = product.getId();
+
+        when(this.repository.save(any())).thenReturn(product);
+
+        long id = this.controller.newProduct(dto);
+
+        assertEquals(expected,id);
+        verify(this.repository, times(1)).save(product);
+    }
+
+    @Test
+    void testGetAll () {
+        final ProductDTO dto1 = new ProductDTO(ProductType.FOOD.name(), "HotDog", "foo");
+        final ProductDTO dto2 = new ProductDTO(ProductType.FOOD.name(), "DogHot", "foo");
+
+        List<Product> products = new ArrayList<>();
+        products.add(mapperFactory.mapProduct(dto1));
+        products.add(mapperFactory.mapProduct(dto2));
+
+        when(this.repository.findAll()).thenReturn(products);
+
+        List<Long> productIDs = this.controller.all();
+
+        assertNotNull(productIDs);
+        assertTrue(productIDs.size() > 0);
+    }
+
+    @Test
+    void testGet() {
+        final ProductDTO dto1 = new ProductDTO(ProductType.FOOD.name(), "HotDog", "foo");
+
+        when(this.repository.findById(any())).thenReturn(Optional.of(mapperFactory.mapProduct(dto1)));
+
+        ProductDTO result = this.controller.one(any());
+
+        assertNotNull(result);
+        assertEquals(dto1, result);
+    }
+
+
+
+    /**
     @Test
     void testGetProductsList() throws URISyntaxException {
         URI uri = new URI(productServiceUrl);
@@ -57,6 +109,8 @@ public class ProductControllerTests {
         assertEquals(200, response.getStatusCodeValue());
         assertNotNull(response.getBody());
     }
+
+     */
 
     @Test
     void testGetMapping () throws URISyntaxException {
@@ -101,19 +155,7 @@ public class ProductControllerTests {
         assertEquals(overWriteProduct, result);
     }
 
-    @Test
-    void testProductTypeValidation() {
-        // Datenbankeintrag mit ungültigem Produkttyp erstellen
-        ProductDTO product = new ProductDTO( "ungültig", "maus", "kabel");
 
-        HttpEntity<ProductDTO> requestBody = new HttpEntity<>(product);
-
-        assertThrows(HttpClientErrorException.BadRequest.class, () -> restTemplate.exchange(productServiceUrl,
-                HttpMethod.POST,
-                requestBody,
-                Long.class));
-
-    }
 
     private ProductDTO getFirstProduct() throws URISyntaxException {
         Long id = getFirstID();
