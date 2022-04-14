@@ -1,10 +1,8 @@
 package de.baleipzig.products.persistance;
 
-import de.baleipzig.products.ProductDTO;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 import javax.persistence.*;
-import java.util.Locale;
 import java.util.Objects;
 
 @Table(name = "products")
@@ -12,6 +10,7 @@ import java.util.Objects;
 public class Product extends AbstractPersistable<Long> {
 
     @Column(name = "Type", nullable = false)
+    @Enumerated(value = EnumType.STRING)
     private ProductType productType;
 
     @Column(name = "name", nullable = false)
@@ -22,29 +21,10 @@ public class Product extends AbstractPersistable<Long> {
     public Product() {
     }
 
-    public Product(String productType, String name, String property) {
-        this.productType = resolveProductType(productType);
+    public Product(ProductType productType, String name, String property) {
+        this.productType = productType;
         this.name = name;
         this.property = property;
-    }
-
-    public Product(ProductDTO productDTO) {
-        this.productType = resolveProductType(productDTO.productType());
-        this.name = productDTO.name();
-        this.property = productDTO.property();
-    }
-
-    private ProductType resolveProductType (String stringType) {
-        ProductType resolvedType;
-        String type = stringType.toUpperCase(Locale.ROOT);
-        switch (type) {
-            case "HOUSEHOLD" -> resolvedType = ProductType.HOUSEHOLD;
-            case "TEXTILES" -> resolvedType = ProductType.TEXTILES;
-            case "FOOD" -> resolvedType = ProductType.FOOD;
-            case "ELECTRONICS" -> resolvedType = ProductType.ELECTRONICS;
-            default -> resolvedType = null;
-        }
-        return resolvedType;
     }
 
     @Override
