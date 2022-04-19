@@ -1,5 +1,6 @@
 package de.baleipzig.products.persistance;
 
+import de.baleipzig.eshop.api.foo.ProductType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -28,8 +29,7 @@ public class LoadDatabase {
     private void saveIfNotExists(ProductRepository repository, Product product) {
         if (!repository.exists(Example.of(product))) {
             log.info("Preloading {}.", repository.save(product));
-        }
-        else {
+        } else {
             log.info("Canceled Preloading {}, already exists.", product);
         }
     }

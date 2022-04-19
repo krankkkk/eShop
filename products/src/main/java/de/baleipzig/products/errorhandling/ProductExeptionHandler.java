@@ -1,7 +1,7 @@
-package de.baleipzig.products;
+package de.baleipzig.products.errorhandling;
 
 
-import de.baleipzig.products.persistance.ProductNotFoundException;
+import de.baleipzig.products.errorhandling.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,14 +12,14 @@ import java.util.Map;
 
 /**
  * diese Klasse rendert die HTTP 404 Fehlermeldung falls eine ProductNotFoundException auftritt
-  */
+ */
 @ControllerAdvice
 public class ProductExeptionHandler {
 
     @ResponseBody
     @ExceptionHandler(ProductNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    String productNotFoundHandler( ProductNotFoundException ex) {
+    String productNotFoundHandler(ProductNotFoundException ex) {
         return ex.getMessage();
     }
 
