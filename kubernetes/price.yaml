@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: price-deploy
+  name: price-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: price-deploy
+  template:
+    metadata:
+      labels:
+        app: price-deploy
+    spec:
+      containers:
+        - image: localhost:5001/prices
+          name: price
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+          readinessProbe: &healthPoint
+            httpGet:
+              scheme: HTTP
+              port: 80
+              path: /actuator/health
+          livenessProbe: *healthPoint
+          startupProbe: *healthPoint
+          envFrom:
+            - secretRef:
+                name: postgres
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: price-service
+  labels:
+    app: price-service
+spec:
+  selector:
+    app: price-deploy
+  ports:
+    - port: 80
+      name: http
+      targetPort: 80
+    - port: 443
+      name: https
+      targetPort: 443
