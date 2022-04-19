@@ -165,7 +165,13 @@ tasks.register("createCluster") {
 
         exec {
             executable = ctlPath
+            args("apply", "-f", project.file("kubernetes/price.yaml").absolutePath)
+        }
+
+        exec {
+            executable = ctlPath
             args("apply", "-f", project.file("kubernetes/ingress.yaml").absolutePath)
+            isIgnoreExitValue = true
         }
     }
 }
@@ -202,6 +208,6 @@ val deleteCluster = tasks.register<Exec>("deleteCluster") {
  * Pusht alle Docker-Container in die lokale Registry (Sammeltask)
  */
 val pushImages = tasks.register("pushImages") {
-    dependsOn(":products:publishContainer")
+    dependsOn(":products:publishContainer", ":prices:publishContainer")
     group = "internal"
 }

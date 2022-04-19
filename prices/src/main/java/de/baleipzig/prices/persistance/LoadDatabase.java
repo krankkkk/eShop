@@ -23,7 +23,7 @@ public class LoadDatabase {
         OffsetDateTime o2 = OffsetDateTime.of(2023, 4, 9, 20, 15, 45, 345875000, ZoneOffset.of("+07:00"));
 
         return args -> {
-            final Price p1 = new Price(o1 , o2, true, 2000 );
+            final Price p1 = new Price(0L,o1 , o2, 2000 );
             saveIfNotExists(repository, p1);
 
         };

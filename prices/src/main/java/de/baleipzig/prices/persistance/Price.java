@@ -1,35 +1,35 @@
 package de.baleipzig.prices.persistance;
 
 import org.springframework.data.jpa.domain.AbstractPersistable;
-import javax.persistence.*;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.time.OffsetDateTime;
 
 @Table(name = "prices")
 @Entity
-public class Price extends AbstractPersistable <Long>{
+public class Price extends AbstractPersistable<Long> {
 
+    @Column(name = "price_id", nullable = false)
+    private long productID;
 
-    @JoinColumn(name = "price_id", referencedColumnName = "product_id")
-    private int product_price_id;
-
-    @Column(name = "start", nullable = false)
+    @Column(name = "startTime", nullable = false)
     private OffsetDateTime start;
 
-    @Column(name = "end", nullable = false)
+    @Column(name = "endTime", nullable = false)
     private OffsetDateTime end;
-
-    @Column(name = "discount", nullable = false)
-    private boolean discountAvailable;
 
     @Column(name = "price", nullable = false)
     private int price;
 
-    public Price (){}
+    public Price() {
+    }
 
-    public Price(OffsetDateTime start, OffsetDateTime end, boolean discountAvailable, int price) {
+    public Price(long productID, OffsetDateTime start, OffsetDateTime end, int price) {
+        this.productID = productID;
         this.start = start;
         this.end = end;
-        this.discountAvailable = discountAvailable;
         this.price = price;
     }
 
@@ -37,10 +37,13 @@ public class Price extends AbstractPersistable <Long>{
     public String toString() {
         return "Price{" +
                 "start=" + start +
-                ", end='" + end+ '\'' +
-                ", discount='" + discountAvailable + '\'' +
+                ", end='" + end + '\'' +
                 ", price='" + price + '\'' +
                 '}';
+    }
+
+    public long getProductID() {
+        return productID;
     }
 
     public OffsetDateTime getStart() {
@@ -49,14 +52,6 @@ public class Price extends AbstractPersistable <Long>{
 
     public OffsetDateTime getEnd() {
         return end;
-    }
-
-    public boolean isDiscountAvailable() {
-        return discountAvailable;
-    }
-
-    public void setDiscountAvailable(boolean discountAvailable) {
-        this.discountAvailable = discountAvailable;
     }
 
     public int getPrice() {

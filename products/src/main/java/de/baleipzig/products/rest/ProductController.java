@@ -14,25 +14,22 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
-    private final MapperFactory mapper;
 
-    public ProductController(ProductService service, MapperFactory mapper) {
+    public ProductController(ProductService service) {
         this.productService = service;
-        this.mapper = mapper;
     }
 
-    @GetMapping("/products")
+    @GetMapping("/")
     public List<Long> all() {
         return productService.getAllProducts();
     }
 
-    @PostMapping(value = "/products", consumes = "application/json")
+    @PostMapping(value = "/", consumes = "application/json")
     public Long newProduct(@RequestBody @Valid ProductDTO dtoProduct) {
-        Product product = mapper.mapProduct(dtoProduct);
         return productService.saveProduct(product);
     }
 
-    @GetMapping("/products/{id}")
+    @GetMapping("/{id}")
     public ProductDTO one(@PathVariable long id) {
         return mapper.convertToDTO(productService.getOneProduct(id));
     }
@@ -44,13 +41,13 @@ public class ProductController {
      * @param id         die ID des Produktes, das bearbeitet werden soll
      * @return die ID des Updateten Produkt
      */
-    @PutMapping(value = "/products/{id}", consumes = "application/json", produces = "application/json")
+    @PutMapping(value = "/{id}", consumes = "application/json", produces = "application/json")
     public Long replaceProduct(@RequestBody @Valid ProductDTO dtoProduct, @PathVariable Long id) {
         return productService.updateProduct(mapper.mapProduct(dtoProduct), id);
     }
 
 
-    @DeleteMapping("/products/{id}")
+    @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
     }

@@ -38,67 +38,20 @@ application {
 }
 
 /**
- * Baut den eigentlichen Docker-Container
+ * Baut & Pusht den Container in die Registry
  */
-val buildContainer = tasks.register<Exec>("buildContainer") {
-    group = "internal"
-    dependsOn("bootJar")
-
-    executable = "docker"
-    args("build", "-t", "$imageName:$version", ".")
-}
-
-/**
- * Pusht den gebauten Docker-Container mit dem Tag "latest"
- */
-val pushLatest = tasks.register<Exec>("pushLatest") {
-    group = "internal"
-    dependsOn(buildContainer)
-
-    executable = "docker"
-    args("tag", "$imageName:$version", "$registryIP/$imageName:latest")
-
-    doLast {
-        exec {
-            executable = "docker"
-            args("push", "$registryIP/$imageName:latest")
-        }
-    }
-}
-
-/**
- * Pusht die neu gebaute Version in das Cluster
- */
-tasks.register<Exec>("redeployPrices") {
-    group = "redeployment"
-    dependsOn(":downloadKubectl", pushLatest)
-
-    val kubeCtl = rootProject.file("build/download/kubectl").absolutePath
-
-    executable = kubeCtl
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        executable = "$executable.exe"
+jib {
+    from {
+        image = "eclipse-temurin:17-jre-alpine"
     }
 
-    args("rollout", "restart", "deployment/prices-deploy")
-
-    doLast {
-        exec {
-            executable = kubeCtl
-            args("rollout", "status", "deployment/prices-deploy")
-        }
+    to {
+        image = "$registryIP/$imageName"
+        tags = mutableSetOf("latest", version.toString())
     }
-}
 
-tasks.bootJar {
-    mainClass.set("de.baleipzig.prices.PricesApplication")
+    setAllowInsecureRegistries(true)
 }
-
-tasks.register("publishContainer") {
-    group = "internal"
-    dependsOn("clean", pushLatest)
-}
-
 
 tasks.compileJava {
     sourceCompatibility = "17"
@@ -107,4 +60,41 @@ tasks.compileJava {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.bootJar {
+    mainClass.set("de.baleipzig.products.ProductsApplication")
+}
+
+tasks.jib {
+    dependsOn(":createRegistry")//Die Registry sollte hier schon existieren, ansonsten gibts nichts zum hin pushen
+}
+
+/**
+ * Pusht die neu gebaute Version in das Cluster
+ */
+tasks.register<Exec>("redeployPrice") {
+    group = "redeployment"
+    dependsOn(":downloadKubectl", tasks.jib)
+
+    val kubeCtl = rootProject.file("build/download/kubectl").absolutePath
+
+    executable = kubeCtl
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        executable = "$executable.exe"
+    }
+
+    args("rollout", "restart", "deployment/price-deploy")
+
+    doLast {
+        exec {
+            executable = kubeCtl
+            args("rollout", "status", "deployment/price-deploy")
+        }
+    }
+}
+
+tasks.register("publishContainer") {
+    group = "internal"
+    dependsOn(tasks.clean, tasks.jib)
 }
