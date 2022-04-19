@@ -1,5 +1,6 @@
 package de.baleipzig.products.persistance;
 
+import de.baleipzig.eshop.api.foo.ProductType;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 import javax.persistence.*;

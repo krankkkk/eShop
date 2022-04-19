@@ -1,4 +1,4 @@
-package de.baleipzig.products.persistance;
+package de.baleipzig.eshop.api.foo;
 
 public enum ProductType {
 

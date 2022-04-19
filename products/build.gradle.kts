@@ -19,6 +19,8 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":API"))
+
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     // https://mvnrepository.com/artifact/org.springframework.data/spring-data-jpa

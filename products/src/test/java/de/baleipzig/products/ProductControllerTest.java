@@ -1,8 +1,12 @@
 package de.baleipzig.products;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.baleipzig.products.persistance.ProductNotFoundException;
-import de.baleipzig.products.persistance.ProductType;
+import de.baleipzig.eshop.api.dto.ProductDTO;
+import de.baleipzig.products.errorhandling.ProductNotFoundException;
+import de.baleipzig.eshop.api.foo.ProductType;
+import de.baleipzig.products.persistance.Product;
+import de.baleipzig.products.rest.ProductController;
+import de.baleipzig.products.rest.ProductService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +35,8 @@ class ProductControllerTest {
     @MockBean
     private ProductService productService;
 
-    private final ProductDTO testProduct = new ProductDTO(ProductType.FOOD.name(), "HotDog", "foo");
+    private final ProductDTO testProductDTO = new ProductDTO(ProductType.FOOD.name(), "HotDog", "foo");
+    private final Product testProduct = new Product(ProductType.FOOD, "HotDog", "foo");
 
     @BeforeEach
     void setUp() {
@@ -58,8 +63,8 @@ class ProductControllerTest {
         given(this.productService.saveProduct(testProduct)).willReturn(id);
 
         MvcResult result = mockMvc.perform(post("/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(testProduct)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(testProductDTO)))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -68,15 +73,14 @@ class ProductControllerTest {
 
     @Test
     void testGet_shouldFetchOneProduct() throws Exception {
-
         Long sampleID = 144L;
         given(this.productService.getOneProduct(sampleID)).willReturn(testProduct);
 
         mockMvc.perform(get("/products/" + sampleID))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name", is(testProduct.name())))
-                .andExpect(jsonPath("$.productType", is(testProduct.productType())))
-                .andExpect(jsonPath("$.property", is(testProduct.property())));
+                .andExpect(jsonPath("$.name", is(testProductDTO.name())))
+                .andExpect(jsonPath("$.productType", is(testProductDTO.productType())))
+                .andExpect(jsonPath("$.property", is(testProductDTO.property())));
 
     }
 
@@ -95,13 +99,13 @@ class ProductControllerTest {
     void testPut_shouldUpdateOneProduct() throws Exception {
 
         Long sampleID = 144L;
-        ProductDTO updatedProduct = new ProductDTO(ProductType.ELECTRONICS.name(), "Headset", "foo");
+        Product updatedProduct = new Product(ProductType.ELECTRONICS, "Headset", "foo");
 
         given(this.productService.updateProduct(updatedProduct, sampleID)).willReturn(sampleID);
 
         MvcResult result = mockMvc.perform(put("/products/" + sampleID)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(updatedProduct)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(updatedProduct)))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -109,14 +113,14 @@ class ProductControllerTest {
     }
 
     @Test
-    void testPut_shouldReturn404NotFound () throws Exception {
-        Long sampleID  = 144L;
+    void testPut_shouldReturn404NotFound() throws Exception {
+        Long sampleID = 144L;
 
         given(this.productService.updateProduct(testProduct, sampleID)).willThrow(new ProductNotFoundException(sampleID));
 
         mockMvc.perform(put("/products/" + sampleID)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(testProduct)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(testProductDTO)))
                 .andExpect(status().isNotFound());
     }
 
@@ -124,11 +128,11 @@ class ProductControllerTest {
     void testPost_shouldReturn400BadRequest() throws Exception {
 
         // create non valid Product
-        ProductDTO nonValidProduct = new ProductDTO("foo" , "oof", "hui");
+        ProductDTO nonValidProduct = new ProductDTO("foo", "oof", "hui");
 
         mockMvc.perform(post("/products/")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(nonValidProduct)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(nonValidProduct)))
                 .andExpect(status().isBadRequest());
     }
 

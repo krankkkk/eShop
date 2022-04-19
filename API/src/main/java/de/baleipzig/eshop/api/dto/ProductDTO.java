@@ -1,6 +1,6 @@
-package de.baleipzig.products;
+package de.baleipzig.eshop.api.dto;
 
-import de.baleipzig.products.persistance.ProductType;
+import de.baleipzig.eshop.api.foo.ProductType;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;

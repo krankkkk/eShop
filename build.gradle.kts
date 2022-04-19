@@ -6,7 +6,6 @@ plugins {
     id("de.undercouch.download") version "5.0.4"
 }
 
-
 val registryName = "local-registry"
 val clusterName = "eshop-cluster"
 
