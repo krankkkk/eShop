@@ -1,4 +1,4 @@
-package de.baleipzig.products;
+package de.baleipzig.products.errorhandling;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -16,7 +16,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface ValueOfEnum {
 
     Class<? extends Enum<?>> enumClass();
+
     String message() default "must be any of enum {enumClass}";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }
