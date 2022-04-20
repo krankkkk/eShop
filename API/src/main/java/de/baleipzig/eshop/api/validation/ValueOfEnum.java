@@ -1,4 +1,4 @@
-package de.baleipzig.products.errorhandling;
+package de.baleipzig.eshop.api.validation;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

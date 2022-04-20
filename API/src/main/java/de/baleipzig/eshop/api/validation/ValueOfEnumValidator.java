@@ -1,6 +1,4 @@
-package de.baleipzig.products.errorhandling;
-
-import de.baleipzig.products.errorhandling.ValueOfEnum;
+package de.baleipzig.eshop.api.validation;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
