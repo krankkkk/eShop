@@ -1,4 +1,4 @@
-package de.baleipzig.prices.persistance;
+package de.baleipzig.prices.persistance.discountPrice;
 
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
@@ -9,7 +9,7 @@ import java.time.OffsetDateTime;
 
 @Table(name = "prices")
 @Entity
-public class Price extends AbstractPersistable<Long> {
+public class DiscountPrice extends AbstractPersistable<Long> {
 
     @Column(name = "price_id", nullable = false)
     private long productID;
@@ -23,10 +23,10 @@ public class Price extends AbstractPersistable<Long> {
     @Column(name = "price", nullable = false)
     private int price;
 
-    public Price() {
+    public DiscountPrice() {
     }
 
-    public Price(long productID, OffsetDateTime start, OffsetDateTime end, int price) {
+    public DiscountPrice(long productID, OffsetDateTime start, OffsetDateTime end, int price) {
         this.productID = productID;
         this.start = start;
         this.end = end;
