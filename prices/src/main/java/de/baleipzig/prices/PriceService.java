@@ -17,7 +17,7 @@ public class PriceService {
     private final BasicPriceRepository bP_repository;
 
 
-    public PriceService(DiscountPriceRepository dP_repository, BasicPriceRepository bP_repository) {
+    public PriceService( DiscountPriceRepository dP_repository, BasicPriceRepository bP_repository ) {
         this.dP_repository = dP_repository;
         this.bP_repository = bP_repository;
     }
@@ -57,16 +57,21 @@ public class PriceService {
     : setter für startTime & endTime notwendig?
      */
     public Long updateDiscountPrice ( DiscountPrice newDPrice, Long id ){
-        return dP_repository.findById(id).map(discountPrice -> { discountPrice.setPrice(newDPrice.getPrice());
-                                                            DiscountPrice saveDPrice = dP_repository.save(discountPrice);
-                                                            return saveDPrice.getId();
+        return dP_repository.findById(id)
+                .map(discountPrice -> { discountPrice.setPrice(newDPrice.getPrice());
+                                                                discountPrice.setDiscountValue(newDPrice.getDiscountValue());
+                                                                discountPrice.setStart(newDPrice.getStart());
+                                                                discountPrice.setEnd(newDPrice.getEnd());
+                                                                DiscountPrice saveDPrice = dP_repository.save(discountPrice);
+                                                                return saveDPrice.getId();
         }).orElseThrow();
     }
 
     public Long updateBasicPrice ( BasicPrice newBPrice, Long id ){
-        return bP_repository.findById(id).map(basicPrice ->  { basicPrice.setBasicPrice(newBPrice.getBasicPrice());
-            BasicPrice saveBPrice = bP_repository.save(basicPrice);
-            return saveBPrice.getId();
+        return bP_repository.findById(id)
+                .map(basicPrice ->  { basicPrice.setBasicPrice(newBPrice.getBasicPrice());
+                                                               BasicPrice saveBPrice = bP_repository.save(basicPrice);
+                                                               return saveBPrice.getId();
         }).orElseThrow();
     }
 
@@ -74,7 +79,7 @@ public class PriceService {
     Discount- & BasicPrice gehören zusammen & müssen zusammen entfernt werden
      */
     public void deleteDiscountAndBasicPrice (Long id){
-        if ( dP_repository.findById(id).isEmpty() && bP_repository.findById(id).isEmpty()){
+        if ( dP_repository.findById(id).isEmpty() && bP_repository.findById(id).isEmpty() ){
             // Exception is missing - hier könnte ihre Werbung stehen!
         }else{
             dP_repository.deleteById(id);
