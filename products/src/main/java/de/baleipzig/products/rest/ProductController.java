@@ -2,8 +2,8 @@ package de.baleipzig.products.rest;
 
 import de.baleipzig.eshop.api.dto.ProductDTO;
 import de.baleipzig.products.mapping.MapperFactory;
-import de.baleipzig.products.mapping.MapperFactoryImplementation;
 import de.baleipzig.products.persistance.Product;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -14,9 +14,11 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final MapperFactory mapper;
 
-    public ProductController(ProductService service) {
+    public ProductController(ProductService service, MapperFactory mapper) {
         this.productService = service;
+        this.mapper = mapper;
     }
 
     @GetMapping("/")
@@ -24,8 +26,9 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
-    @PostMapping(value = "/", consumes = "application/json")
+    @PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Long newProduct(@RequestBody @Valid ProductDTO dtoProduct) {
+        Product product = mapper.mapProduct(dtoProduct);
         return productService.saveProduct(product);
     }
 
@@ -41,7 +44,7 @@ public class ProductController {
      * @param id         die ID des Produktes, das bearbeitet werden soll
      * @return die ID des Updateten Produkt
      */
-    @PutMapping(value = "/{id}", consumes = "application/json", produces = "application/json")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Long replaceProduct(@RequestBody @Valid ProductDTO dtoProduct, @PathVariable Long id) {
         return productService.updateProduct(mapper.mapProduct(dtoProduct), id);
     }
