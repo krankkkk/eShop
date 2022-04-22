@@ -27,6 +27,9 @@ spec:
               path: /actuator/health
           livenessProbe: *healthPoint
           startupProbe: *healthPoint
+          envFrom:
+            - secretRef:
+                name: postgres
 ---
 
 kind: Service

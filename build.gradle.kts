@@ -6,7 +6,6 @@ plugins {
     id("de.undercouch.download") version "5.0.4"
 }
 
-
 val registryName = "local-registry"
 val clusterName = "eshop-cluster"
 
@@ -154,6 +153,11 @@ tasks.register("createCluster") {
     group = "deployment"
 
     doLast {
+        exec {
+            executable = ctlPath
+            args("apply", "-f", project.file("kubernetes/postgres.yaml").absolutePath)
+        }
+
         exec {
             executable = ctlPath
             args("apply", "-f", project.file("kubernetes/products.yaml").absolutePath)

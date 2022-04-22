@@ -3,6 +3,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 plugins {
     id("org.springframework.boot") version "2.6.5"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    id("com.google.cloud.tools.jib") version "3.2.1"
     application
     java
 }
@@ -18,11 +19,21 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation(project(":API"))
+
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    // https://mvnrepository.com/artifact/org.springframework.data/spring-data-jpa
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-validation
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+
+    runtimeOnly("org.postgresql:postgresql")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
+    testRuntimeOnly("com.h2database:h2")
 }
 
 application {
@@ -30,32 +41,36 @@ application {
 }
 
 /**
- * Baut den eigentlichen Docker-Container
+ * Baut & Pusht den Container in die Registry
  */
-val buildContainer = tasks.register<Exec>("buildContainer") {
-    group = "internal"
-    dependsOn("bootJar")
+jib {
+    from {
+        image = "eclipse-temurin:17-jre-alpine"
+    }
 
-    executable = "docker"
-    args("build", "-t", "$imageName:$version", ".")
+    to {
+        image = "$registryIP/$imageName"
+        tags = mutableSetOf("latest", version.toString())
+    }
+
+    setAllowInsecureRegistries(true)
 }
 
-/**
- * Pusht den gebauten Docker-Container mit dem Tag "latest"
- */
-val pushLatest = tasks.register<Exec>("pushLatest") {
-    group = "internal"
-    dependsOn(buildContainer)
+tasks.compileJava {
+    sourceCompatibility = "17"
+    targetCompatibility = "17"
+}
 
-    executable = "docker"
-    args("tag", "$imageName:$version", "$registryIP/$imageName:latest")
+tasks.test {
+    useJUnitPlatform()
+}
 
-    doLast {
-        exec {
-            executable = "docker"
-            args("push", "$registryIP/$imageName:latest")
-        }
-    }
+tasks.bootJar {
+    mainClass.set("de.baleipzig.products.ProductsApplication")
+}
+
+tasks.jib {
+    dependsOn(":createRegistry")//Die Registry sollte hier schon existieren, ansonsten gibts nichts zum hin pushen
 }
 
 /**
@@ -63,7 +78,7 @@ val pushLatest = tasks.register<Exec>("pushLatest") {
  */
 tasks.register<Exec>("redeployProducts") {
     group = "redeployment"
-    dependsOn(":downloadKubectl", pushLatest)
+    dependsOn(":downloadKubectl", tasks.jib)
 
     val kubeCtl = rootProject.file("build/download/kubectl").absolutePath
 
@@ -82,21 +97,7 @@ tasks.register<Exec>("redeployProducts") {
     }
 }
 
-tasks.bootJar {
-    mainClass.set("de.baleipzig.products.ProductsApplication")
-}
-
 tasks.register("publishContainer") {
     group = "internal"
-    dependsOn("clean", pushLatest)
-}
-
-
-tasks.compileJava {
-    sourceCompatibility = "17"
-    targetCompatibility = "17"
-}
-
-tasks.test {
-    useJUnitPlatform()
+    dependsOn(tasks.clean, tasks.jib)
 }
