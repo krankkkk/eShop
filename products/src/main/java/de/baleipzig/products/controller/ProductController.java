@@ -1,12 +1,13 @@
-package de.baleipzig.products.rest;
+package de.baleipzig.products.controller;
 
 import de.baleipzig.eshop.api.dto.ProductDTO;
-import de.baleipzig.products.mapping.MapperFactory;
-import de.baleipzig.products.mapping.MapperFactoryImplementation;
-import de.baleipzig.products.persistance.Product;
+import de.baleipzig.products.services.interfaces.MapperService;
+import de.baleipzig.products.entities.Product;
+import de.baleipzig.products.services.interfaces.ProductService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 
@@ -14,25 +15,25 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
-    private final MapperFactory mapper;
+    private final MapperService mapper;
 
-    public ProductController(ProductService service, MapperFactory mapper) {
+    public ProductController(ProductService service, MapperService mapper) {
         this.productService = service;
         this.mapper = mapper;
     }
 
-    @GetMapping("/products")
+    @GetMapping("/")
     public List<Long> all() {
         return productService.getAllProducts();
     }
 
-    @PostMapping(value = "/products", consumes = "application/json")
+    @PostMapping(value = "/", consumes = "application/json")
     public Long newProduct(@RequestBody @Valid ProductDTO dtoProduct) {
         Product product = mapper.mapProduct(dtoProduct);
         return productService.saveProduct(product);
     }
 
-    @GetMapping("/products/{id}")
+    @GetMapping("/{id}")
     public ProductDTO one(@PathVariable long id) {
         return mapper.convertToDTO(productService.getOneProduct(id));
     }
@@ -42,18 +43,16 @@ public class ProductController {
      *
      * @param dtoProduct Die neuen Daten für das Produkt
      * @param id         die ID des Produktes, das bearbeitet werden soll
-     * @return die ID des Updateten Produkt
+     * @return die ID des zu updateten Produkt
      */
-    @PutMapping(value = "/products/{id}", consumes = "application/json", produces = "application/json")
-    public Long replaceProduct(@RequestBody @Valid ProductDTO dtoProduct, @PathVariable Long id) {
-        return productService.updateProduct(mapper.mapProduct(dtoProduct), id);
+    @PutMapping(value = "/{id}", consumes = "application/json", produces = "application/json")
+    public Long replaceProduct(@RequestBody @Valid ProductDTO dtoProduct, @PathVariable @NotNull Long id) {
+        return productService.updateProduct(mapper.mapProduct(dtoProduct, id));
     }
 
 
-    @DeleteMapping("/products/{id}")
-    public void deleteProduct(@PathVariable Long id) {
+    @DeleteMapping("/{id}")
+    public void deleteProduct(@PathVariable @NotNull Long id) {
         productService.deleteProduct(id);
     }
-
-
 }

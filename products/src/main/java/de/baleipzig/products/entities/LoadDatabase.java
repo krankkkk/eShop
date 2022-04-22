@@ -1,6 +1,7 @@
-package de.baleipzig.products.persistance;
+package de.baleipzig.products.entities;
 
-import de.baleipzig.eshop.api.foo.ProductType;
+import de.baleipzig.eshop.api.enums.ProductType;
+import de.baleipzig.products.repositories.ProductRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -18,10 +19,10 @@ public class LoadDatabase {
     CommandLineRunner initDatabase(ProductRepository repository) {
 
         return args -> {
-            final Product mouse = new Product(ProductType.ELECTRONICS, "Maus", "Kabellos");
+            final Product mouse = new Product(ProductType.ELECTRONICS, "Maus");
             saveIfNotExists(repository, mouse);
 
-            final Product broom = new Product(ProductType.HOUSEHOLD, "Besen", "1,5m ");
+            final Product broom = new Product(ProductType.HOUSEHOLD, "Besen");
             saveIfNotExists(repository, broom);
         };
     }

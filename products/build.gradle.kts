@@ -33,6 +33,7 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
+    testRuntimeOnly("com.h2database:h2")
 }
 
 application {

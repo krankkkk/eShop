@@ -1,21 +1,20 @@
-package de.baleipzig.products.rest;
+package de.baleipzig.products.services;
 
-import de.baleipzig.eshop.api.dto.ProductDTO;
-import de.baleipzig.products.mapping.MapperFactory;
-import de.baleipzig.products.persistance.Product;
-import de.baleipzig.products.errorhandling.ProductNotFoundException;
-import de.baleipzig.products.persistance.ProductRepository;
+import de.baleipzig.products.exceptions.ProductNotFoundException;
+import de.baleipzig.products.entities.Product;
+import de.baleipzig.products.repositories.ProductRepository;
+import de.baleipzig.products.services.interfaces.ProductService;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class ProductService {
+public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository repository;
 
-    public ProductService(ProductRepository repository, MapperFactory mapperFactory) {
+    public ProductServiceImpl(ProductRepository repository) {
         this.repository = repository;
     }
 
@@ -38,17 +37,12 @@ public class ProductService {
                 .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
-    public Long updateProduct(Product newProduct, Long id) throws ProductNotFoundException {
-
-        return repository.findById(id)
-                .map(product -> {
-                    product.setName(newProduct.getName());
-                    product.setProductType(newProduct.getProductType());
-                    product.setProperty(newProduct.getProperty());
-                    Product savedProduct = repository.save(product);
-                    return savedProduct.getId();
-                })
+    public Long updateProduct(Product newProduct) throws ProductNotFoundException {
+        long id = newProduct.getId();
+        repository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
+
+        return repository.save(newProduct).getId();
     }
 
     public void deleteProduct(Long id) {
