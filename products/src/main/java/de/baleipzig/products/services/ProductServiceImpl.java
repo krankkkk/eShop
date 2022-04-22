@@ -1,11 +1,14 @@
 package de.baleipzig.products.services;
 
-import de.baleipzig.products.exceptions.ProductNotFoundException;
+import de.baleipzig.eshop.api.enums.ProductType;
 import de.baleipzig.products.entities.Product;
+import de.baleipzig.products.exceptions.ProductNotFoundException;
 import de.baleipzig.products.repositories.ProductRepository;
 import de.baleipzig.products.services.interfaces.ProductService;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,6 +19,16 @@ public class ProductServiceImpl implements ProductService {
 
     public ProductServiceImpl(ProductRepository repository) {
         this.repository = repository;
+    }
+
+    @Override
+    @Transactional
+    public List<Long> getProducts(ProductType type, int offset, int maxCount) {
+        return this.repository.streamAllByProductType(type, Sort.by("Id").ascending())
+                .skip(offset)
+                .limit(maxCount)
+                .map(AbstractPersistable::getId)
+                .toList();
     }
 
     public List<Long> getAllProducts() {
