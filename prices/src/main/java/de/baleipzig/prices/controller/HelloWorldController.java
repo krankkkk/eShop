@@ -1,4 +1,4 @@
-package de.baleipzig.prices;
+package de.baleipzig.prices.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
