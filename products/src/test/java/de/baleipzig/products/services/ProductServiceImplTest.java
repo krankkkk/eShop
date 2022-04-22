@@ -29,16 +29,12 @@ class ProductServiceImplTest {
     @Test
     void testServiceFromTo(@Autowired ProductService service) {
         int maxCount = 100;
-        List<Long> products = service.getProducts(ProductType.ELECTRONICS, 100, maxCount);
+        List<Product> products = service.getProducts(ProductType.ELECTRONICS, 100, maxCount);
 
         assertEquals(100, products.size());//checks correct Size
 
-        Long firstID = products.get(0);
-
-        for (long i = 0; i < maxCount; i++) {
-            long toGet = i + firstID;
-            assertEquals(toGet, products.get((int) i));
-            Product oneProduct = service.getOneProduct(toGet);
+        for (int i = 0; i < products.size(); i++) {
+            Product oneProduct = products.get(i);
 
             assertEquals("Product %d".formatted(100 + i), oneProduct.getName());//checks sorting
             assertEquals(ProductType.ELECTRONICS, oneProduct.getProductType());//checks selection
