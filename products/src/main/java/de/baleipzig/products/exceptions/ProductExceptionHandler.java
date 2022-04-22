@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Diese Klasse behandelt die Exceptions die auftreten falls ein mit {@code @Valid} annotiertes Feld nicht valdie war/ist und daher eine Exception geflogen ist.
+ * Diese Klasse behandelt die Exceptions die auftreten, falls ein mit {@code @Valid} annotiertes Feld nicht valdie war/ist und daher eine Exception geflogen ist.
  */
 @ControllerAdvice
 public class ProductExceptionHandler {

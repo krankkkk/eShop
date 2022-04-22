@@ -19,6 +19,8 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":API"))
+
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     // https://mvnrepository.com/artifact/org.springframework.data/spring-data-jpa
@@ -31,6 +33,7 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
+    testRuntimeOnly("com.h2database:h2")
 }
 
 application {
