@@ -20,9 +20,6 @@ public class DiscountPrice extends AbstractPersistable<Long> {
     @Column(name = "endTime", nullable = false)
     private OffsetDateTime end;
 
-    @Column( name = "discountValue", nullable = false )
-    private boolean discountValue;
-
     @Column(name = "price", nullable = false)
     private int price;
 
@@ -63,14 +60,6 @@ public class DiscountPrice extends AbstractPersistable<Long> {
 
     public void setEnd(OffsetDateTime end) {
         this.end = end;
-    }
-
-    public boolean getDiscountValue() {
-        return discountValue;
-    }
-
-    public void setDiscountValue(boolean discountValue) {
-        this.discountValue = discountValue;
     }
 
     public int getPrice() {

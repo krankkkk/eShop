@@ -18,7 +18,7 @@ public class LoadDatabaseForDP {
     @Bean
     CommandLineRunner initDatabase(DiscountPriceRepository repository) {
 
-        OffsetDateTime o1 = OffsetDateTime.now();
+        OffsetDateTime o1 = OffsetDateTime.of(2022, 4, 9, 20, 15, 45, 345875000, ZoneOffset.of("+07:00"));
         OffsetDateTime o2 = OffsetDateTime.of(2023, 4, 9, 20, 15, 45, 345875000, ZoneOffset.of("+07:00"));
 
         return args -> {
