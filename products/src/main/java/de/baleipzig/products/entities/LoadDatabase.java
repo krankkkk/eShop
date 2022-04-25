@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Example;
 
+import java.util.stream.IntStream;
+
 
 @Configuration
 public class LoadDatabase {
@@ -24,6 +26,10 @@ public class LoadDatabase {
 
             final Product broom = new Product(ProductType.HOUSEHOLD, "Besen");
             saveIfNotExists(repository, broom);
+
+            IntStream.range(0, 30)
+                    .mapToObj(i -> new Product(ProductType.FOOD, "Cheese " + i))
+                    .forEach(p -> saveIfNotExists(repository, p));
         };
     }
 
