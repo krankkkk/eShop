@@ -70,4 +70,9 @@ public class ProductController {
     public void deleteProduct(@PathVariable @NotNull Long id) {
         productService.deleteByID(id);
     }
+
+    @GetMapping("types")
+    public List<ProductType> types() {
+        return List.of(ProductType.values());
+    }
 }

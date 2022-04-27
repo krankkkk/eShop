@@ -1,5 +1,6 @@
 package de.baleipzig.products.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.baleipzig.eshop.api.dto.ProductDTO;
 import de.baleipzig.eshop.api.enums.ProductType;
@@ -15,7 +16,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -137,5 +142,24 @@ class ProductControllerTest {
 
         mockMvc.perform(delete("/delete/{id}", this.sampleID))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testTypes(@Autowired ObjectMapper mapper)
+            throws Exception {
+
+        String response = mockMvc.perform(get("/types"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+
+        List<String> names = mapper.readValue(response, new TypeReference<>() {
+        });
+
+        Arrays.stream(ProductType.values())
+                .map(Enum::name)
+                .forEach(t -> assertTrue(names.contains(t)));
     }
 }
