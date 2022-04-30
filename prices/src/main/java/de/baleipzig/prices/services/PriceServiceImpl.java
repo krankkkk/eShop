@@ -30,8 +30,31 @@ public class PriceServiceImpl implements ProduktService {
     @Override
     @Transactional
     public long saveDiscountPrice(DiscountPrice discountPrice) {
-        //todo: Price der davor gilt anpassen
-        //       + der danach gilt
+
+      DiscountPrice oldDiscountPrice = getDiscountByProductID(discountPrice.getProductID());
+
+        if (oldDiscountPrice.getEnd().isBefore(discountPrice.getStart()) &&
+                oldDiscountPrice.getStart().isAfter(discountPrice.getStart())) {
+            /**
+             * START -|- ENDE : Lösche vorherigen Eintrag und setze einen neuen Rabattzeitraum mit start -1
+             */
+            discountPrice = new DiscountPrice(oldDiscountPrice.getProductID(), oldDiscountPrice.getStart().minusSeconds(1),
+                                discountPrice.getEnd(), discountPrice.getPrice());
+            deleteDiscountPrice(oldDiscountPrice.getId());
+
+        }else if (oldDiscountPrice.getEnd().isAfter(oldDiscountPrice.getStart())) {
+            /**
+             * ENDE old -|- START new DP
+             * keine Überschneidung
+             */
+        }else {
+            /**
+             * Es existiert kein Eintrag für dieses Produkt
+             */
+
+        }
+
+
         return dpRepository.save(discountPrice)
                 .getId();
     }
@@ -39,8 +62,28 @@ public class PriceServiceImpl implements ProduktService {
 
     @Override
     public long saveBasicPrice(BasicPrice basicPrice) {
-        //todo: Price der davor gilt anpassen
-        //       + der danach gilt
+
+        BasicPrice oldBasicPrice = getBasicPriceByProductID(basicPrice.getProductID());
+
+        if (oldBasicPrice.getEnd().isBefore(basicPrice.getStart()) &&
+                oldBasicPrice.getStart().isAfter(basicPrice.getStart())) {
+            /**
+             * START -|- ENDE : Lösche vorherigen Eintrag und setze einen neuen Rabattzeitraum
+             */
+            basicPrice = new BasicPrice(oldBasicPrice.getProductID(),oldBasicPrice.getStart().minusSeconds(1),basicPrice.getEnd(), basicPrice.getPrice());
+            deleteDiscountPrice(oldBasicPrice.getId());
+
+
+        }else if (oldBasicPrice.getEnd().isAfter(oldBasicPrice.getStart())) {
+            /**
+             * ENDE old -|- START new DP
+             * keine Überschneidung vom Zeitraum
+             */
+        }else {
+            /**
+             * Es existiert kein Eintrag für dieses Produkt
+             */
+        }
         return bpRepository.save(basicPrice)
                 .getId();
     }
@@ -53,6 +96,9 @@ public class PriceServiceImpl implements ProduktService {
         return dpRepository.findByEndAfterAndStartBeforeAndProductID(now, now, productID)
                 .orElseThrow(() -> new DiscountNotFoundException(productID));
     }
+
+
+
 
     @Override
     public BasicPrice getBasicPriceByProductID(long id) {

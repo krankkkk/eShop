@@ -5,7 +5,7 @@ import de.baleipzig.prices.entities.DiscountPrice;
 
 public interface ProduktService {
 
-    long saveDiscountPrice(DiscountPrice discountPrice);
+    long saveDiscountPrice( DiscountPrice discountPrice);
 
     long saveBasicPrice(BasicPrice basicPrice);
 
