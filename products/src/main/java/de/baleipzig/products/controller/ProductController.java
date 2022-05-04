@@ -1,8 +1,8 @@
 package de.baleipzig.products.controller;
 
 import de.baleipzig.eshop.api.dto.ProductDTO;
-import de.baleipzig.products.entities.Product;
 import de.baleipzig.products.services.interfaces.MapperService;
+import de.baleipzig.products.entities.Product;
 import de.baleipzig.products.services.interfaces.ProductService;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,12 +1,12 @@
 package de.baleipzig.products.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.baleipzig.eshop.api.dto.ProductDTO;
 import de.baleipzig.eshop.api.enums.ProductType;
 import de.baleipzig.products.entities.Product;
 import de.baleipzig.products.exceptions.ProductNotFoundException;
 import de.baleipzig.products.services.interfaces.ProductService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,12 +15,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -40,47 +40,30 @@ class ProductControllerTest {
     private ProductService productService;
 
     private final Long sampleID = 144L;
-    private final ProductDTO testProductDTO = new ProductDTO(ProductType.FOOD.name(), "HotDog");
+    private final ProductDTO testProductDTO = new ProductDTO(this.sampleID, ProductType.FOOD.name(), "HotDog");
     private final Product testProduct = new Product(this.sampleID, ProductType.FOOD, "HotDog");
 
     @Test
-    void shouldFetchAllProducts()
+    void testSave(@Autowired ObjectMapper mapper)
             throws Exception {
-        List<Long> ids = new ArrayList<>();
-        ids.add(123L);
-        ids.add(345L);
 
-        given(this.productService.getAllProducts()).willReturn(ids);
+        given(this.productService.saveNewProduct(testProduct))
+                .willReturn(testProduct);
 
-
-        mockMvc.perform(get("/"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(ids.size())));
-    }
-
-    @Test
-    void testPost_shouldSaveOneProduct()
-            throws Exception {
-        Long id = 3425L;
-
-        given(this.productService.saveProduct(testProduct)).willReturn(id);
-
-        MvcResult result = mockMvc.perform(post("/")
+        mockMvc.perform(put("/save")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(testProductDTO)))
+                        .content(mapper.writeValueAsString(testProductDTO)))
                 .andExpect(status().isOk())
-                .andReturn();
-
-        Assertions.assertEquals(String.valueOf(id), result.getResponse().getContentAsString());
+                .andExpect(jsonPath("id").value(this.testProduct.getId()));
     }
 
     @Test
     void testGet_shouldFetchOneProduct()
             throws Exception {
-        Long sampleID = 144L;
-        given(this.productService.getOneProduct(sampleID)).willReturn(testProduct);
+        given(this.productService.getByID(sampleID))
+                .willReturn(testProduct);
 
-        mockMvc.perform(get("/" + sampleID))
+        mockMvc.perform(get("/get/{id}", sampleID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is(testProductDTO.name())))
                 .andExpect(jsonPath("$.productType", is(testProductDTO.productType())));
@@ -92,48 +75,47 @@ class ProductControllerTest {
             throws Exception {
         long sampleID = 144L;
 
-        given(this.productService.getOneProduct(sampleID)).willThrow(new ProductNotFoundException(sampleID));
+        given(this.productService.getByID(sampleID))
+                .willThrow(new ProductNotFoundException(sampleID));
 
-        mockMvc.perform(get("/" + sampleID))
+        mockMvc.perform(get("/get/{id}", sampleID))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void testPut_shouldUpdateOneProduct(@Autowired ObjectMapper mapper)
+    void testUpdateSuccess(@Autowired ObjectMapper mapper)
             throws Exception {
         Product updatedProduct = new Product(sampleID, ProductType.ELECTRONICS, "Headset");
 
-        given(this.productService.updateProduct(updatedProduct)).willReturn(sampleID);
+        given(this.productService.updateProduct(updatedProduct))
+                .willReturn(updatedProduct);
 
-        MvcResult result = mockMvc.perform(put("/" + sampleID)
+        mockMvc.perform(post("/update")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(updatedProduct)))
                 .andExpect(status().isOk())
-                .andReturn();
-
-        Assertions.assertEquals(String.valueOf(sampleID), result.getResponse().getContentAsString());
+                .andExpect(jsonPath("id").value(this.sampleID));
     }
 
     @Test
-    void testPut_shouldReturn404NotFound(@Autowired ObjectMapper mapper)
+    void testUpdateWithException(@Autowired ObjectMapper mapper)
             throws Exception {
 
-        given(this.productService.updateProduct(testProduct)).willThrow(new ProductNotFoundException(sampleID));
+        given(this.productService.updateProduct(testProduct))
+                .willThrow(new ProductNotFoundException(sampleID));
 
-        mockMvc.perform(put("/" + sampleID)
+        mockMvc.perform(post("/update/{id}", sampleID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(testProductDTO)))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void testPost_shouldReturn400BadRequest(@Autowired ObjectMapper mapper)
+    void testSaveInvalidData(@Autowired ObjectMapper mapper)
             throws Exception {
+        ProductDTO nonValidProduct = new ProductDTO(null, "foo", "oof");
 
-        // create non valid Product
-        ProductDTO nonValidProduct = new ProductDTO("foo", "oof");
-
-        mockMvc.perform(post("/")
+        mockMvc.perform(put("/save")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(nonValidProduct)))
                 .andExpect(status().isBadRequest());
@@ -144,9 +126,9 @@ class ProductControllerTest {
             throws Exception {
         doNothing()
                 .when(this.productService)
-                .deleteProduct(this.sampleID);
+                .deleteByID(this.sampleID);
 
-        mockMvc.perform(delete("/{id}", this.sampleID))
+        mockMvc.perform(delete("/delete/{id}", this.sampleID))
                 .andExpect(status().isOk());
     }
 
@@ -156,9 +138,28 @@ class ProductControllerTest {
 
         doThrow(new ProductNotFoundException(this.sampleID))
                 .when(this.productService)
-                .deleteProduct(this.sampleID);
+                .deleteByID(this.sampleID);
 
-        mockMvc.perform(delete("/{id}", this.sampleID))
+        mockMvc.perform(delete("/delete/{id}", this.sampleID))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testTypes(@Autowired ObjectMapper mapper)
+            throws Exception {
+
+        String response = mockMvc.perform(get("/types"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+
+        List<String> names = mapper.readValue(response, new TypeReference<>() {
+        });
+
+        Arrays.stream(ProductType.values())
+                .map(Enum::name)
+                .forEach(t -> assertTrue(names.contains(t)));
     }
 }

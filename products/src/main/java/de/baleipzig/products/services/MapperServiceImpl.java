@@ -11,13 +11,8 @@ public class MapperServiceImpl implements MapperService {
 
     @Override
     public Product mapProduct(ProductDTO toMap) {
-        return mapProduct(toMap, null);
-    }
-
-    @Override
-    public Product mapProduct(ProductDTO toMap, Long id) {
         return new Product(
-                id,
+                toMap.id(),
                 ProductType.valueOf(toMap.productType().toUpperCase()),
                 toMap.name());
     }
@@ -26,6 +21,7 @@ public class MapperServiceImpl implements MapperService {
     @Override
     public ProductDTO convertToDTO(Product product) {
         return new ProductDTO(
+                product.getId(),
                 product.getProductType().name(),
                 product.getName());
     }

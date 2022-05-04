@@ -7,16 +7,14 @@ import java.util.List;
 
 public interface ProductService {
 
-    List<Long> getProducts(ProductType type, int offset, int maxCount);
+    List<Product> getProducts(ProductType type, int offset, int maxCount);
 
-    List<Long> getAllProducts();
+    Product saveNewProduct(Product product);
 
-    Long saveProduct(Product product);
+    Product getByID(long productID);
 
-    Product getOneProduct(Long id);
+    Product updateProduct(Product newProduct);
 
-    Long updateProduct(Product newProduct);
-
-    void deleteProduct(Long id);
+    void deleteByID(long id);
 
 }
