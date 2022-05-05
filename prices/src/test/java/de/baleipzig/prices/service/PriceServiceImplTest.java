@@ -26,7 +26,7 @@ public class PriceServiceImplTest {
          * Product-id?
          */
         IntStream.range(1, 300)
-                .mapToObj(i -> new BasicPrice(1, OffsetDateTime.of(LocalDateTime.of(2017, 05, 12, 05, 45),
+                .mapToObj(i -> new BasicPrice(1L, OffsetDateTime.of(LocalDateTime.of(2017, 05, 12, 05, 45),
                         ZoneOffset.ofHoursMinutes(6, 30)), OffsetDateTime.of(LocalDateTime.of(2017, 10, 12, 05, 45),
                         ZoneOffset.ofHoursMinutes(6, 30)), 2000)).forEach(bpRepository::save);
     }
@@ -34,7 +34,7 @@ public class PriceServiceImplTest {
     @BeforeAll
     static void initDBforDP(@Autowired DiscountPriceRepository dpRepository) {
         IntStream.range(1, 300)
-                .mapToObj(i -> new DiscountPrice(1, OffsetDateTime.of(LocalDateTime.of(2017, 06, 12, 05, 45),
+                .mapToObj(i -> new DiscountPrice(1L, OffsetDateTime.of(LocalDateTime.of(2017, 06, 12, 05, 45),
                         ZoneOffset.ofHoursMinutes(6, 30)), OffsetDateTime.of(LocalDateTime.of(2017, 07, 12, 05, 45),
                         ZoneOffset.ofHoursMinutes(6, 30)), 2000)).forEach(dpRepository::save);
     }
