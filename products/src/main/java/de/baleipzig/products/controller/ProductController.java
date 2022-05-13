@@ -40,7 +40,7 @@ public class ProductController {
                 .toList();
     }
 
-    @PutMapping(value = "/save", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/save")
     public ProductDTO newProduct(@RequestBody @Valid ProductDTO dtoProduct) {
         Product toSave = mapper.toEntity(dtoProduct);
         Product savedProduct = productService.saveNewProduct(toSave);
@@ -58,7 +58,7 @@ public class ProductController {
      * @param dtoProduct Die neuen Daten für das Produkt
      * @return Das gespeicherte Object
      */
-    @PostMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/update")
     public ProductDTO replaceProduct(@RequestBody @Valid ProductDTO dtoProduct) {
         Product newProduct = mapper.toEntity(dtoProduct);
         Product updatedProduct = productService.updateProduct(newProduct);
