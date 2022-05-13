@@ -27,7 +27,7 @@ val downloadKind = tasks.register<Download>("downloadKind") {
         "windows"
     }
 
-    src("https://kind.sigs.k8s.io/dl/v0.12.0/kind-$type-amd64")
+    src("https://kind.sigs.k8s.io/dl/v0.13.0/kind-$type-amd64")
     dest(kindPath)
 
     doLast {
@@ -60,9 +60,9 @@ val downloadKubectl = tasks.register<Download>("downloadKubectl") {
     }
 
     if (type == "windows") {
-        src("https://dl.k8s.io/release/v1.23.5/bin/windows/amd64/kubectl.exe")
+        src("https://dl.k8s.io/release/v1.24.0/bin/windows/amd64/kubectl.exe")
     } else {
-        src("https://dl.k8s.io/release/v1.23.5/bin/$type/amd64/kubectl")
+        src("https://dl.k8s.io/release/v1.24.0/bin/$type/amd64/kubectl")
     }
 
     dest(ctlPath)
@@ -131,6 +131,11 @@ val createKindCluster = tasks.register<Exec>("createKindCluster") {
             executable = ctlPath
             args("apply", "-f", project.file("kubernetes/kind_configmap.yaml").absolutePath)
         }
+
+        exec {
+            executable = ctlPath
+            args("label", "nodes", "eshop-cluster-worker", "ingress-ready=true")
+        }
     }
 }
 
@@ -156,6 +161,11 @@ tasks.register("createCluster") {
         exec {
             executable = ctlPath
             args("apply", "-f", project.file("kubernetes/postgres.yaml").absolutePath)
+        }
+
+        exec {
+            executable = ctlPath
+            args("rollout", "status", "deployment/postgres")
         }
 
         exec {

@@ -36,20 +36,20 @@ public class ProductController {
 
         return productService.getProducts(type, (page - 1) * 10, PAGE_SIZE)
                 .stream()
-                .map(this.mapper::convertToDTO)
+                .map(this.mapper::toDTO)
                 .toList();
     }
 
     @PutMapping(value = "/save", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ProductDTO newProduct(@RequestBody @Valid ProductDTO dtoProduct) {
-        Product toSave = mapper.mapProduct(dtoProduct);
+        Product toSave = mapper.toEntity(dtoProduct);
         Product savedProduct = productService.saveNewProduct(toSave);
-        return mapper.convertToDTO(savedProduct);
+        return mapper.toDTO(savedProduct);
     }
 
     @GetMapping("/get/{id}")
     public ProductDTO get(@PathVariable long id) {
-        return mapper.convertToDTO(productService.getByID(id));
+        return mapper.toDTO(productService.getByID(id));
     }
 
     /**
@@ -60,9 +60,9 @@ public class ProductController {
      */
     @PostMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ProductDTO replaceProduct(@RequestBody @Valid ProductDTO dtoProduct) {
-        Product newProduct = mapper.mapProduct(dtoProduct);
+        Product newProduct = mapper.toEntity(dtoProduct);
         Product updatedProduct = productService.updateProduct(newProduct);
-        return mapper.convertToDTO(updatedProduct);
+        return mapper.toDTO(updatedProduct);
     }
 
 
