@@ -1,4 +1,4 @@
-package de.baleipzig.products;
+package de.baleipzig.prices;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,20 +10,20 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {
-        "de.baleipzig.products",
-        "de.baleipzig.products.controller",
-        "de.baleipzig.products.repositories",
-        "de.baleipzig.products.services"
+        "de.baleipzig.prices",
+        "de.baleipzig.prices.controller",
+        "de.baleipzig.prices.repositories",
+        "de.baleipzig.prices.services"
 })
-@EntityScan(basePackages = {"de.baleipzig.products.entities"})
-@EnableJpaRepositories(basePackages = {"de.baleipzig.products.repositories"})
-public class ProductsApplication extends SpringApplication {
+@EntityScan(basePackages = {"de.baleipzig.prices.entities"})
+@EnableJpaRepositories(basePackages = {"de.baleipzig.prices.repositories"})
+public class PricesApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ProductsApplication.class, args);
+        SpringApplication.run(PricesApplication.class, args);
     }
 
-    public WebMvcConfigurer webConfig(){
+    public WebMvcConfigurer webConfig() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(final CorsRegistry registry) {

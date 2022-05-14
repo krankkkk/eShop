@@ -45,7 +45,7 @@ public class Product extends AbstractPersistable<Long> {
 
     @Override
     public String toString() {
-        return "Product{productType=%s, name='%s}".formatted(productType, name);
+        return "Product{id=%d, productType=%s, name='%s}".formatted(getId(), productType, name);
     }
 
     public ProductType getProductType() {

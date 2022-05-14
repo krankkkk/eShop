@@ -7,10 +7,12 @@ containerdConfigPatches:
 nodes:
   - role: control-plane
     kubeadmConfigPatches:
-     - kind: InitConfiguration
+      - |
+        kind: InitConfiguration
   - role: worker
     kubeadmConfigPatches:
-        - nodeRegistration:
+        - |
+          nodeRegistration:
             kubeletExtraArgs:
               node-labels: "ingress-ready=true"
     extraPortMappings:

@@ -170,12 +170,31 @@ tasks.register("createCluster") {
 
         exec {
             executable = ctlPath
-            args("apply", "-f", project.file("kubernetes/products.yaml").absolutePath)
+            args("apply", "-f", project.file("kubernetes/price.yaml").absolutePath)
         }
 
         exec {
             executable = ctlPath
-            args("apply", "-f", project.file("kubernetes/ingress.yaml").absolutePath)
+            args("apply", "-f", project.file("kubernetes/products.yaml").absolutePath)
+        }
+
+        try {
+            exec {
+                executable = ctlPath
+                args("apply", "-f", project.file("kubernetes/ingress.yaml").absolutePath)
+            }
+        }catch(ignored :Throwable){
+            exec {
+                executable = ctlPath
+                args("delete", "-A", "ValidatingWebhookConfiguration", "ingress-nginx-admission")
+            }
+
+            //If you at first don't succeed, just try again
+            //this legit works, sometimes the validation Webhook just decides it doesn't want to work today
+            exec {
+                executable = ctlPath
+                args("apply", "-f", project.file("kubernetes/ingress.yaml").absolutePath)
+            }
         }
     }
 }
@@ -212,6 +231,6 @@ val deleteCluster = tasks.register<Exec>("deleteCluster") {
  * Pusht alle Docker-Container in die lokale Registry (Sammeltask)
  */
 val pushImages = tasks.register("pushImages") {
-    dependsOn(":products:publishContainer")
+    dependsOn(":products:publishContainer", ":prices:publishContainer")
     group = "internal"
 }

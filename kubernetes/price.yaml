@@ -2,21 +2,21 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: products-deploy
-  name: products-deploy
+    app: price-deploy
+  name: price-deploy
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: products-deploy
-  replicas: 1
+      app: price-deploy
   template:
     metadata:
       labels:
-        app: products-deploy
+        app: price-deploy
     spec:
       containers:
-        - name: products
-          image: 'localhost:5001/products:latest'
+        - image: localhost:5001/prices
+          name: price
           ports:
             - name: https
               containerPort: 443
@@ -27,12 +27,12 @@ spec:
                 name: postgres
           livenessProbe:
             httpGet:
-              path: /products/actuator/health/liveness
+              path: /prices/actuator/health/liveness
               port: 80
               scheme: HTTP
           readinessProbe:
             httpGet:
-              path: /products/actuator/health/readiness
+              path: /prices/actuator/health/readiness
               port: 80
               scheme: HTTP
           lifecycle:
@@ -45,12 +45,12 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: product-service
+  name: price-service
   labels:
-    app: product-service
+    app: price-service
 spec:
   selector:
-    app: products-deploy
+    app: price-deploy
   ports:
     - port: 80
       name: http
