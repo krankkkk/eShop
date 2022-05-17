@@ -73,7 +73,7 @@ public class DiscountPriceServiceImpl implements DiscountPriceService {
     @Override
     public void deleteByProductID(long productID) {
         if(this.repository.existsByProductID(productID)){
-            this.repository.deleteByProductID(productID);
+            this.repository.deleteAllByProductID(productID);
         }
     }
 }

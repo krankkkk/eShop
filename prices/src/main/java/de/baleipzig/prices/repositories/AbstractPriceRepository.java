@@ -4,6 +4,7 @@ package de.baleipzig.prices.repositories;
 import de.baleipzig.prices.entities.Price;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -15,6 +16,7 @@ interface AbstractPriceRepository<T extends Price> extends JpaRepository<T, Long
 
     boolean existsByProductID(long productID);
 
-    void deleteByProductID(long productID);
+    @Transactional
+    void deleteAllByProductID(long productID);
 
 }
