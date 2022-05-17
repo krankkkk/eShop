@@ -8,7 +8,7 @@ import javax.persistence.*;
 public class Information extends AbstractPersistable<Long> {
 
     @JoinColumn(referencedColumnName = "id", name = "productID")
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @ManyToOne(optional = false, cascade = CascadeType.REMOVE)
     private final Product product;
 
     @Column(name = "techdoc")
