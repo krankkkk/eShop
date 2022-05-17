@@ -47,7 +47,7 @@ public class PriceController {
     }
 
     @DeleteMapping
-    public void delete(@RequestBody @Valid PriceDTO toDelete) {
+    public void deleteByDTO(@RequestBody @Valid PriceDTO toDelete) {
         if (toDelete.isDiscount()) {
             this.discountPriceService.deletePrice(this.mapperService.toDP(toDelete));
             return;
@@ -55,4 +55,11 @@ public class PriceController {
 
         this.basicPriceService.deletePrice(this.mapperService.toBP(toDelete));
     }
+    @DeleteMapping("product/{id}")
+    public void deleteByProductID(@PathVariable("id") final long productID) {
+       this.basicPriceService.deleteByProductID(productID);
+       this.discountPriceService.deleteByProductID(productID);
+    }
+
+
 }

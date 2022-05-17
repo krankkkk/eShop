@@ -62,4 +62,12 @@ public class BasicPriceServiceImpl implements BasicPriceService {
     public void deletePrice(BasicPrice price) {
         this.repository.delete(price);
     }
+
+    @Override
+    public void deleteByProductID(long productID) {
+        if(this.repository.existsByProductID(productID)){
+            this.repository.deleteByProductID(productID);
+        }
+
+    }
 }

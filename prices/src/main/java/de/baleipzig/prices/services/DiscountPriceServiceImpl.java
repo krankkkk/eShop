@@ -69,4 +69,11 @@ public class DiscountPriceServiceImpl implements DiscountPriceService {
     public boolean hasPrice(long productID, OffsetDateTime at) {
         return this.repository.findByEndAfterAndStartBeforeAndProductID(at, at, productID).isPresent();
     }
+
+    @Override
+    public void deleteByProductID(long productID) {
+        if(this.repository.existsByProductID(productID)){
+            this.repository.deleteByProductID(productID);
+        }
+    }
 }

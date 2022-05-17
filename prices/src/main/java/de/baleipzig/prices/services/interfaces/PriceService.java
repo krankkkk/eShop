@@ -13,4 +13,6 @@ public interface PriceService<T extends Price> {
     T savePrice(T price);
 
     void deletePrice(T price);
+
+    void deleteByProductID(long productID);
 }

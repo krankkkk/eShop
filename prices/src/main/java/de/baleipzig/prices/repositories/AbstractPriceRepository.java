@@ -13,4 +13,8 @@ interface AbstractPriceRepository<T extends Price> extends JpaRepository<T, Long
 
     Optional<T> findByEndAfterAndStartBeforeAndProductID(OffsetDateTime end, OffsetDateTime start, Long productID);
 
+    boolean existsByProductID(long productID);
+
+    void deleteByProductID(long productID);
+
 }
