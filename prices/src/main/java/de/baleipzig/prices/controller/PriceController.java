@@ -50,6 +50,7 @@ public class PriceController {
     public void delete(@RequestBody @Valid PriceDTO toDelete) {
         if (toDelete.isDiscount()) {
             this.discountPriceService.deletePrice(this.mapperService.toDP(toDelete));
+            return;
         }
 
         this.basicPriceService.deletePrice(this.mapperService.toBP(toDelete));

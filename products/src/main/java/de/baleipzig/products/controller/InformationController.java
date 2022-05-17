@@ -8,7 +8,6 @@ import de.baleipzig.products.services.interfaces.MapperService;
 import de.baleipzig.products.services.interfaces.ProductService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @RestController
@@ -37,8 +36,8 @@ public class InformationController {
     }
 
     @DeleteMapping
-    public void delete(@RequestParam("imageID") final long imageID) {
-        final Information information = this.informationService.getInformationByID(imageID);
+    public void delete(@RequestParam("infoID") final long infoID) {
+        final Information information = this.informationService.getInformationByID(infoID);
 
         this.informationService.deleteInformation(information);
     }
