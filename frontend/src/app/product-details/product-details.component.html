@@ -1,0 +1,29 @@
+<h3>View Product Details</h3>
+<div>
+  <div>
+    <label> <b> Name: </b> </label> {{productComplete.name}}
+  </div>
+  <div>
+    <label> <b> Produkt Typ: </b> </label> {{productComplete.productType}}
+  </div>
+  <div>
+    <label> <b> Preis: </b> </label> {{productComplete.price.price}}
+  </div>
+  <div>
+    <label> <b> isDiscount: </b> </label> {{productComplete.price.isDiscount}}
+  </div>
+  <div>
+    <label> <b> Technische Dokumentation: </b> </label> {{productComplete.info.techDoc}}
+  </div>
+  <div>
+    <label> <b> Zusätzliche Informationen </b> </label> {{productComplete.info.additionalInformation}}
+  </div>
+  <div>
+    <label> <b> Image </b> </label>
+    <div class="img-space mb-3">
+      <ng-container *ngIf="isImageSaved;">
+        <img [src]="productComplete.image.content" style="width: 100px;height:100px;" />
+      </ng-container>
+    </div>
+  </div>
+</div>

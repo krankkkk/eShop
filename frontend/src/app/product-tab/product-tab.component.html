@@ -1,0 +1,6 @@
+<h2>Product Lists</h2>
+<app-tabs>
+  <app-tab *ngFor = "let type of types"  title={{type}}>
+      <app-product-list type={{type}}></app-product-list>
+  </app-tab>
+</app-tabs>

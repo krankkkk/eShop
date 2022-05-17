@@ -1,0 +1,56 @@
+<div class="col-md-6 offset-md-3">
+  <h3> Create Product </h3>
+  <form (ngSubmit) = "onSubmit()">
+
+    <div class="form-group mb-3 mt-3">
+      <label for="name" class="control-label"> Name </label>
+      <input type="text" class="form-control" id="name"
+        [(ngModel)] = "productComplete.name" name="name">
+    </div>
+
+    <div class="mb-3">
+      <label for="productType"> Product Type </label>
+      <input type="text" class="form-control" id="productType"
+        [(ngModel)] = "productComplete.productType" name="productType">
+    </div>
+
+    <div class="mb-3">
+      <label for="price"> Price </label>
+      <input type="number" class="form-control" id="price"
+        [(ngModel)] = "productComplete.price.price" name="price">
+    </div>
+
+    <div class="form-check mb-3">
+      <label class="form-check-label">
+        <input class="form-check-input" type="checkbox" #discount
+        [checked] = "productComplete.price.isDiscount"
+        (change)="onDiscountChanged(discount.checked)"
+        name="discount"> Discount
+      </label>
+    </div>
+
+    <div class="mb-3">
+      <label for="techDoc"> Technical Documentation </label>
+      <input type="text" class="form-control" id="techDoc"
+        [(ngModel)] = "productComplete.info.techDoc" name="techDoc">
+    </div>
+
+    <div class="mb-3">
+      <label for="additionalInformation"> Additional Information </label>
+      <input type="text" class="form-control" id="additionalInformation"
+        [(ngModel)] = "productComplete.info.additionalInformation" name="additionalInformation">
+    </div>
+
+    <div class="mb-3">
+      <label for="content"> Image </label>
+      <input type="file" (change)="fileChangeEvent($event)" class="form-control">
+      <div class="img-space mb-3">
+        <ng-container *ngIf="isImageSaved;">
+          <img [src]="productComplete.image.content" style="width: 100px;height:100px;" />
+        </ng-container>
+      </div>
+    </div>
+
+    <button class="btn btn-success" type="submit"> Submit </button>
+  </form>
+</div>
