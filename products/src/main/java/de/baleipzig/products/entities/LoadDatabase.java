@@ -25,7 +25,6 @@ public class LoadDatabase {
 
     @Bean
     CommandLineRunner initProducts(ProductRepository repository,
-                                   ProductRepository productRepository,
                                    ImageRepository imageRepository) {
 
         return args -> {
