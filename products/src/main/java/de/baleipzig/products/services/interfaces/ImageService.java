@@ -16,4 +16,6 @@ public interface ImageService {
     Image updateImage(Image toSave);
 
     void deleteImage(Image toDelete);
+
+    void deleteByProduct(Product product);
 }

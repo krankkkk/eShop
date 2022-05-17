@@ -12,4 +12,5 @@ public interface InformationRepository extends JpaRepository<Information, Long> 
 
     Optional<Information> getInformationByProduct(Product product);
 
+    void deleteAllByProduct(Product product);
 }

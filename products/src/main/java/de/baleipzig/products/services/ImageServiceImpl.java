@@ -56,4 +56,9 @@ public class ImageServiceImpl implements ImageService {
 
         this.repository.deleteById(id);
     }
+
+    @Override
+    public void deleteByProduct(Product product) {
+        this.repository.deleteAllByProduct(product);
+    }
 }

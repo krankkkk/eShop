@@ -1,6 +1,7 @@
 package de.baleipzig.products.entities;
 
 import de.baleipzig.eshop.api.enums.ProductType;
+import org.hibernate.annotations.Cascade;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 import javax.persistence.*;

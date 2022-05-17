@@ -4,6 +4,8 @@ import de.baleipzig.eshop.api.enums.ProductType;
 import de.baleipzig.products.entities.Product;
 import de.baleipzig.products.exceptions.ProductNotFoundException;
 import de.baleipzig.products.repositories.ProductRepository;
+import de.baleipzig.products.services.interfaces.ImageService;
+import de.baleipzig.products.services.interfaces.InformationService;
 import de.baleipzig.products.services.interfaces.ProductService;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -17,9 +19,13 @@ import java.util.stream.Stream;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository repository;
+    private final ImageService imageService;
+    private final InformationService informationService;
 
-    public ProductServiceImpl(ProductRepository repository) {
+    public ProductServiceImpl(ProductRepository repository, ImageService imageService, InformationService informationService) {
         this.repository = repository;
+        this.imageService = imageService;
+        this.informationService = informationService;
     }
 
     @Override
@@ -53,6 +59,10 @@ public class ProductServiceImpl implements ProductService {
     public void deleteByID(long id) {
         Product toDelete = repository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
+
+        this.imageService.deleteByProduct(toDelete);
+
+        this.informationService.deleteByProduct(toDelete);
 
         repository.delete(toDelete);
     }

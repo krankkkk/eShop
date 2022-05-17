@@ -9,7 +9,7 @@ import javax.persistence.*;
 public class Image extends AbstractPersistable<Long> {
 
     @JoinColumn(referencedColumnName = "id", name = "productID")
-    @ManyToOne(optional = false, cascade = CascadeType.REMOVE)
+    @ManyToOne(optional = false)
     private final Product product;
 
     @Column(name = "image", nullable = false)

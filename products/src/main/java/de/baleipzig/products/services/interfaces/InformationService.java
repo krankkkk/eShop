@@ -14,4 +14,6 @@ public interface InformationService {
     Information updateInformation(Information toUpdate);
 
     void deleteInformation(Information toDelete);
+
+    void deleteByProduct(Product product);
 }

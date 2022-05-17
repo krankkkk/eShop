@@ -13,4 +13,7 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
 
     @Transactional(readOnly = true)
     List<Image> getImagesByProduct(Product product);
+
+    @Transactional
+    void deleteAllByProduct(Product product);
 }
