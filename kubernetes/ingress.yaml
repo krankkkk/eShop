@@ -4,6 +4,11 @@ metadata:
   name: gateway
 spec:
   ingressClassName: nginx
+  defaultBackend:
+    service:
+      name: frontend-service
+      port:
+        number: 80
   rules:
     - http:
         paths:

@@ -160,3 +160,5 @@ frontend/.angular/
 frontend/.vscode/
 frontend/node_modules/
 /frontend/.vscode/
+/frontend/dist
+/**/env

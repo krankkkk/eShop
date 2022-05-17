@@ -9,4 +9,4 @@
  */
 
 rootProject.name = "eShop"
-include("products", "API", "prices")
+include("products", "API", "prices", "frontend")
